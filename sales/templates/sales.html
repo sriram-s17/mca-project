@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales{% endblock %}
+
+{% block content %}
+<h2>Sales</h2>
+<a href="/sales/add/"><button>Add Sales</button></a>
+<table class="table">
+    <thead>
+        <th>id</th>
+        <th>Purchase Date</th>
+        <th>Supplier</th>
+        <th>Total amount</th>
+        <th>Paid Amount</th>
+        <th>Balance</th>
+        <th>View</th>
+        <th>Add paid amount</th>
+    </thead>
+    {% for sale in sales %}
+    <tr>
+        <td>{{sale.id}}</td>
+        <td>{{sale.sold_date}}</td>
+        <td>{{sale.customer_ref}}</td>
+        <td>{{sale.total_amount}}</td>
+        <td>{{sale.paid_amount}}</td>
+        {% if sale.last_sale_from_supplier %}
+        <td>{{sale.balance_amount}}</td>
+        {% else %}
+        <td>added to last sale from this supplier</td>
+        {% endif %}
+        <td><a href="{% url 'view_sale' sale.id %}"><button>View</button></a></td>
+        {% if sale.last_sale_from_supplier %}
+        <td><a href="{% url 'add_payment' sale.id %}"><button>Add Payment</button></a></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Warehouse{% endblock %}
+
+{% block content %}
+<h1>Edit Warehouse details</h1>
+<a href="/warehouses/"><button>Back To Warehouses</button></a>
+
+{% if warehouse_form.errors %}
+    {% for error in warehouse_form.non_field_errors %}
+        <p class="alert alert-danger">{error}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {{warehouse_form}}
+    <button type="submit">Save details</button>
+</form>
+{% endblock %}

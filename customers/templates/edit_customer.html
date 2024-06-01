@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Customers{% endblock %}
+
+{% block content %}
+<h1>Edit Customer Details</h1>
+<a href="/customers/"><button>Back to Customers</button></a>
+
+{% if customer_form.errors %}
+    {% for error in customer_form.non_field_errors %}
+        <p class="alert alert-danger">{{error}}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {{customer_form}}
+    <button type="submit">Save details</button>
+</form>
+{% endblock %}

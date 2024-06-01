@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<h1>Edit Product Detail</h1>
+<a href="/products/"><button>Back to Products</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{product_form}}
+    <div id="productdetail">
+        {{detail_form}}
+    </div>
+    <button id="save_button" type="submit">Save Product Details</button>
+</form>
+<script>
+    const productdetailform = document.querySelector("#productdetail")
+    const save_button = document.querySelector("#save_button")
+    const has_variants = document.querySelector("#id_has_variants")
+
+    if(has_variants.checked){
+        productdetailform.style.display="none"
+        save_button.textContent = "Save Product Details"
+    }
+
+    has_variants.addEventListener('change', ()=>{
+        if(has_variants.checked){
+            productdetailform.style.display="none"
+            save_button.textContent = "Save and Continue add variant"
+        }
+        else{
+            productdetailform.style.display="block"
+            save_button.textContent = "Save Product Details"
+        }
+    });  
+</script>
+{% endblock %}

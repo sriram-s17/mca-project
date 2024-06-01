@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Suppliers{% endblock %}
+
+{% block content %}
+<h1>Edit Supplier Details</h1>
+
+<a href="/suppliers/"><button>Back to Suppliers</button></a>
+
+{% if supplier_form.errors %}
+    {% for error in supplier_form.non_field_errors %}
+        <p class="alert alert-danger">{error}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {{supplier_form}}
+    <button type="submit">Save details</button>
+</form>
+{% endblock %}

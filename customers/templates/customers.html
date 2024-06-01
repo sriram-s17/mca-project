@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Customers{% endblock %}
+{% block content %}
+    <h1>Customers</h1>
+    <a href="/customers/add/"><button>Add Customers</button></a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Phone no</th>
+                <th>Address</th>
+                <th>edit</th>
+                <th>delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{customer.customer_id}}</td>
+                <td>{{customer.customer_name}}</td>
+                <td>{{customer.age}}</td>
+                <td>{{customer.phoneno}}</td>
+                <td>{{customer.address}}</td>
+                <td><a href="{% url 'edit_customer' customer.customer_id %}"><button>edit</button></a></td>
+                <td><a href="{% url 'delete_customer' customer.customer_id %}"><button>delete</button></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

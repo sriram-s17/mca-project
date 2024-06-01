@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase Details{% endblock %}
+
+{% block content %}
+<h2>Purchase Details</h2>
+<table class="table">
+    <tr>
+        <th>Id</th>
+        <td>{{purchase.id}}</td>
+    </tr>
+    <tr>
+        <th>Purchased Date</th>
+        <td>{{purchase.purchased_date}}</td>
+    </tr>
+    <tr>
+        <th>Supplier</th>
+        <td>{{purchase.supplier_ref}}</td>
+    </tr>
+</table>
+<h3>Products</h3>
+<table id="products" class="table">
+    <thead>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Unit Cost Price</th>
+        <th>Total</th>
+    </thead>
+    <tbody>
+        {% for product in purchase_details %}
+        <tr>
+            <td>{{product.product_detail_ref}}</td>
+            <td class="quantity">{{product.quantity}}</td>
+            <td class="unit_cost_price">{{product.unit_cost_price}}</td>
+            <td class="total"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p id="bill_amount"><span>Product Bill Amount: </span><span>{{purchase.bill_amount}}</span></p>
+<p id="prev_balance"><span>Previous Balance: </span><span>{{prev_balance}}</span></p>
+<p id="total_amount"><span>Total Amount: </span><span>{{purchase.total_amount}}</span></p>
+<h3>Purchase Payments</h3>
+<table class="table">
+    <thead>
+        <th>Payment Date</th>
+        <th>Paid Amount</th>
+        <th>Balance</th>
+    </thead>
+    <tbody>
+        {% for payment in purchase_payments %}
+        <tr>
+            <td>{{payment.payment_date}}</td>
+            <td>{{payment.paid_amount}}</td>
+            <td>{{payment.balance_amount}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if last_purch_from_this_sup and balance_amount > 0 %}
+<p><a href="{% url 'add_payment' purchase.id %}"><button>Add Payment</button></a></p>
+{% else %}
+<p>This purchase balance is added to next purchase from this supplier</p>
+{% endif %}
+<script>
+    quantities = document.querySelectorAll(".quantity")
+    unit_cost_prices =  document.querySelectorAll(".unit_cost_price")
+    totals = document.querySelectorAll(".total")
+    for(let i=0; i<quantities.length; i++){
+        totals[i].textContent =  parseFloat(quantities[i].textContent) * parseFloat(unit_cost_prices[i].textContent)
+    }
+</script>
+{% endblock %}

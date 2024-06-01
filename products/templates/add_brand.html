@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Brands{% endblock %}
+
+{% block content %}
+<h1>Add Brands</h1>
+<a href="/products/brands/"><button>Back to Brands</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{brand_form}}
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

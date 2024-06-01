@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Variant{% endblock %}
+
+{% block content %}
+<h1>Add Variant</h1>
+<a href="/products/"><button>Back to Products</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<p>Add variant for the product '{{product.product_name}}'</p>
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{variant_form}}
+    {{detail_form}}
+    <div id="select_attribute_div">
+
+    </div>
+    <button id="add_attribute" type="button">Add Attribute</button>
+    <button type="submit">Save</button>
+</form>
+<script>
+    const attr_value_form = `{{attr_value_form}}`
+    const allattributeDiv = document.querySelector("#select_attribute_div")
+    const addattrbutton = document.querySelector("#add_attribute")
+    addattrbutton.addEventListener("click", ()=>{
+        
+        //remove attribute button
+        let removeattrbutton = document.createElement("button")
+        removeattrbutton.setAttribute("class","removeattribute")
+        removeattrbutton.setAttribute("type","button")
+        removeattrbutton.textContent = "Remove attribute"
+        
+        //attribute value div
+        let attributesformDiv = document.createElement("div")
+        attributesformDiv.innerHTML = attr_value_form
+        attributesformDiv.appendChild(removeattrbutton)
+        
+        allattributeDiv.appendChild(attributesformDiv)
+        removeattrbutton.addEventListener("click",()=>{
+            removeattrbutton.parentElement.remove()
+        })
+    })
+</script>
+{% endblock %}

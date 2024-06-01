@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Products{% endblock %}
+
+{% block content %}
+<h1>Add Products</h1>
+<a href="/products/"><button>Back to Products</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{product_form}}
+    <div id="productdetail">
+        {{detail_form}}
+    </div>
+    <button id="add_button" type="submit">Add Product</button>
+</form>
+<script>
+    const productdetailform = document.querySelector("#productdetail")
+    const add_button = document.querySelector("#add_button")
+    const has_variants = document.querySelector("#id_has_variants")
+    has_variants.addEventListener('change', ()=>{
+        if(has_variants.checked){
+            productdetailform.style.display="none"
+            add_button.textContent = "Save and Continue add variant"
+        }
+        else{
+            productdetailform.style.display="block"
+            add_button.textContent = "Add Product"
+        }
+    });  
+</script>
+{% endblock %}

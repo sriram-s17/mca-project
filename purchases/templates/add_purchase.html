@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Purchase{% endblock %}
+
+{% block content %}
+<h2>Add Purchase</h2>
+<p><a href="/purchases/"><button>Back to Purchases</button></a></p>
+<form method = "POST" action="">
+    {% csrf_token %}
+    {{supplier_ref_form}}
+    <div class="purchase_items_block">
+
+    </div>
+    <button type="button" id="add_item">Add Item</button>
+    <div>
+        <label for="id_total_amt">Total Amount</label>
+        <input type="number" name="total_amt" id="id_total_amt" readonly>
+    </div>
+    <button type="submit">Add Purchase and Next</button>
+</form>
+<script>
+    let items_block = document.querySelector(".purchase_items_block")
+    let purchase_item = document.createElement("div")
+    purchase_item.setAttribute("class","purchase_item")
+    purchase_detail_add_form = `{{purchase_detail_add_form}}<div><label for="id_product_amt">Total product amount</label><input type="number" name="product_amt" id="id_product_amt" readonly></div>`
+    purchase_item.innerHTML = purchase_detail_add_form
+    items_block.appendChild(purchase_item)
+    purchase_item.querySelector("input[name='quantity']").addEventListener("change", (e)=>{
+        calcproductprice(e)
+    })
+    purchase_item.querySelector("input[name='unit_cost_price']").addEventListener("change", (e)=>{
+        calcproductprice(e)
+    })
+    
+    let add_item_btn = document.querySelector("#add_item")
+    add_item_btn.addEventListener("click", ()=>{    
+        let purchase_item = document.createElement("div")
+        purchase_item.setAttribute("class","purchase_item")
+        purchase_item.innerHTML = purchase_detail_add_form
+
+        const remove_item_btn = document.createElement("button")
+        remove_item_btn.setAttribute("type","button")
+        remove_item_btn.setAttribute("class","remove_item")
+        remove_item_btn.textContent = "Remove Item"
+        remove_item_btn.addEventListener("click", ()=>{
+            remove_item_btn.parentElement.remove()
+        })
+
+        purchase_item.appendChild(remove_item_btn)
+        items_block.appendChild(purchase_item)
+        purchase_item.querySelector("input[name='quantity']").addEventListener("change", (e)=>{
+            calcproductprice(e)
+        })
+        purchase_item.querySelector("input[name='unit_cost_price']").addEventListener("change", (e)=>{
+            calcproductprice(e)
+        })
+    })
+
+
+    function calcproductprice(e){
+        quantity = e.target.closest('.purchase_item').querySelector("input[name='quantity']")
+        cost_price = e.target.closest('.purchase_item').querySelector("input[name='unit_cost_price']")
+        
+        if(quantity.value!="" && cost_price.value!=""){
+            e.target.closest('.purchase_item').querySelector("input[name='product_amt']").value = quantity.value * cost_price.value
+            calctotalprice()
+        }
+    }
+
+    function calctotalprice(){
+        let purchase_items = document.querySelectorAll('.purchase_item')
+        let total = 0
+        purchase_items.forEach((purchase_item)=>{
+            total += purchase_item.querySelector("input[name='quantity']").value*purchase_item.querySelector("input[name='unit_cost_price']").value
+            document.querySelector("input[name='total_amt']").value = total
+        })
+    }
+</script>
+{% endblock %}

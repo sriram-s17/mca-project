@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Categories{% endblock %}
+
+{% block content %}
+<h1>Add Category</h1>
+<a href="/products/categories/"><button>Back to Categories</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{category_form}}
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Attributes{% endblock %}
+
+{% block content %}
+<h1>Add Attribute</h1>
+<a href="/products/attributes/"><button>Back to Attributes</button></a>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{attribute_form}}
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}
