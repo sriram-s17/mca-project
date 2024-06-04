@@ -3,11 +3,12 @@
 {% block title %}Purchase Details{% endblock %}
 
 {% block content %}
+<a href="/purchases/"><button>Back to Purchases</button></a>
 <h2>Purchase Details</h2>
 <table class="table">
     <tr>
         <th>Id</th>
-        <td>{{purchase.id}}</td>
+        <td>{{purchase.purchase_id}}</td>
     </tr>
     <tr>
         <th>Purchased Date</th>
@@ -27,7 +28,7 @@
         <th>Total</th>
     </thead>
     <tbody>
-        {% for product in purchase_details %}
+        {% for product in purchased_items %}
         <tr>
             <td>{{product.product_detail_ref}}</td>
             <td class="quantity">{{product.quantity}}</td>
@@ -37,9 +38,11 @@
         {% endfor %}
     </tbody>
 </table>
-<p id="bill_amount"><span>Product Bill Amount: </span><span>{{purchase.bill_amount}}</span></p>
-<p id="prev_balance"><span>Previous Balance: </span><span>{{prev_balance}}</span></p>
-<p id="total_amount"><span>Total Amount: </span><span>{{purchase.total_amount}}</span></p>
+<div style="text-align: center; font-size: 18px;">
+    <p id="bill_amount"><strong>Bill Amount: </strong><span>{{purchase.bill_amount}}</span></p>
+    <p id="prev_balance"><strong>Previous Balance: </strong><span>{{prev_balance}}</span></p>
+    <p id="total_amount"><strong>Total Amount: </strong><span>{{purchase.total_amount}}</span></p>
+</div>
 <h3>Purchase Payments</h3>
 <table class="table">
     <thead>
@@ -48,17 +51,26 @@
         <th>Balance</th>
     </thead>
     <tbody>
-        {% for payment in purchase_payments %}
+        {% if purchase_payments %}
+            {% for payment in purchase_payments %}
+            <tr>
+                <td>{{payment.payment_date}}</td>
+                <td>{{payment.paid_amount}}</td>
+                <td>{{payment.balance_amount}}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
         <tr>
-            <td>{{payment.payment_date}}</td>
-            <td>{{payment.paid_amount}}</td>
-            <td>{{payment.balance_amount}}</td>
+            <td colspan="3" style="text-align: center; font-size: 16px;">No Payment added</td>
         </tr>
-        {% endfor %}
+        {% endif %}
     </tbody>
 </table>
-{% if last_purch_from_this_sup and balance_amount > 0 %}
-<p><a href="{% url 'add_payment' purchase.id %}"><button>Add Payment</button></a></p>
+{% if last_pur_from_supplier and balance_amount > 0 %}
+<div>
+    <p>Balance Amount to Pay: {{balance_amount}}</p>
+    <p><a href="{% url 'add_payment' purchase.purchase_id %}"><button>Add Payment</button></a></p>
+</div>
 {% else %}
 <p>This purchase balance is added to next purchase from this supplier</p>
 {% endif %}

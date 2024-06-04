@@ -3,34 +3,45 @@
 {% block title %}Add Payment{% endblock %}
 
 {% block content %}
-<h1>Add Payment</h1>
 <a href="/purchases/"><button>Back to Purchases</button></a>
+<h2>Add Payment</h2>
 
-<h3>Purchase Details</h3>
-<p><span>Supplier: </span><span>{{purchase_ref.supplier_ref}}</span><br>
-<span>Purchase Date: </span> <span>{{purchase_ref.purchased_date}}</span><br>
-<span>Purchase Amount: </span><span>{{purchase_ref.bill_amount}}</span><br>
-{% if purchase_ref.bill_amount != purchase_ref.total_amount %}
-<span>Total Purchase Amount with prev Balance: </span><span>{{purchase_ref.total_amount}}</span>
-{% endif %}
+<h3 style="font-size: 250x;">Purchase Details</h3>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Supplier</th>
+            <td>{{purchase_ref.supplier_ref}}</td>
+        </tr>
+        <tr>
+            <th>Purchase Date</th>
+            <td>{{purchase_ref.purchased_date}}</td>
+        </tr>
+        <tr>
+            <th>Bill Amount</th>
+            <td>{{purchase_ref.bill_amount}}</td>
+        </tr>
+        <tr>
+            <th>Previous balance from this supplier</th>
+            <td>{{prev_balance}}</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="font-size: 20px; text-align: center; font-weight: bold;">Total amount: {{purchase_ref.total_amount}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<p style="text-align: center;">
+    <p><strong>Paid Amount:</strong><span>{{paid_amount}}</span><br></p>
+    <p style="font-size: 25px;"><strong>balance Amount to Pay: </strong><span>{{balance}}</span></p>
 </p>
-{% if paid_amount %}
-<p><span>Paid Amount:</span><span>{{paid_amount}}</span><br>
-{% endif %}
-{% if discounted_amount > 0 %}
-<span>Discounted Amount:</span><span>{{discounted_amount}}</span><br>
-{% endif %}
-<span>balance Amount to Pay: </span><span>{{balance}}</span></p>
+
 <form action="" method="POST">
     {% csrf_token %}
     <div>
         <label for="id_paid_amount">Enter the Amount you Paid: </label>
         <input type="number" name="paid_amount" id="id_paid_amount" required>
     </div>
-    <div>
-        <label for="id_discounted_amount">Enter if any amount discounted: </label>
-        <input type="number" name="discounted_amount" id="id_discounted_amount">
-    </div>
-    <button type="submit">Add</button>
+    <button type="submit">Add Paid amount</button>
 </form>
 {% endblock %}

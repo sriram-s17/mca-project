@@ -51,15 +51,15 @@ class SupplierForm(RequiredModelForm):
         model = Supplier
         fields = ['shop_name', 'owner_name', 'phoneno', 'address']
 
-# class SupplierRefForm(RequiredModelForm):
-#     class Meta:
-#         model = Purchases
-#         fields = ['supplier_ref']
+class PurchaseHeaderForm(RequiredModelForm):
+    class Meta:
+        model = PurchaseHeaderDetail
+        fields = ['supplier_ref']
 
-# class PurchaseDetailForm(RequiredModelForm):
-#     class Meta:
-#         model = PurchaseDetails
-#         fields = ['product_detail_ref', 'unit_cost_price', 'quantity']
+class PurchaseItemForm(RequiredModelForm):
+    class Meta:
+        model = PurchaseItem
+        fields = ['product_detail_ref', 'quantity', 'unit_cost_price']
 
 class CustomerForm(RequiredModelForm):
     class Meta:

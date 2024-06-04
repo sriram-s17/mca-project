@@ -29,7 +29,7 @@ class Product(models.Model):
     class Meta:
         db_table = 'product'
     def __str__(self):
-        return self.product_name
+        return "p:" + str(self.product_name)
 
 class ProductVariant(models.Model):
     variant_id = models.BigAutoField(primary_key=True)
@@ -38,7 +38,7 @@ class ProductVariant(models.Model):
     class Meta:
         db_table = 'product_variant'
     def __str__(self):
-        return "p:"+str(self.product_ref) + " v:" + self.variant_name
+        return " v:" + self.variant_name
 
 class Attribute(models.Model):
     attribute_id = models.BigAutoField(primary_key=True)
@@ -70,7 +70,7 @@ class ProductDetail(models.Model):
     class Meta:
         db_table = 'product_detail'
     def __str__(self):
-        return self.product_code + " " + str(self.variant_ref)
+        return self.product_code + " "+ str(self.product_ref) +" " + str(self.variant_ref)
 
 class Supplier(models.Model):
     supplier_id = models.BigAutoField(primary_key=True)
@@ -85,20 +85,20 @@ class Supplier(models.Model):
     def __str__(self):
         return self.shop_name
 
-class PurchaseOrderHeader(models.Model):
+class PurchaseHeaderDetail(models.Model):
     purchase_id = models.BigAutoField(primary_key=True)
     supplier_ref = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
     purchased_date = models.DateTimeField(auto_now_add=True)
     bill_amount = models.IntegerField()
     total_amount = models.IntegerField()
     class Meta:
-        db_table = 'purchase_order_header'
+        db_table = 'purchase_header_detail'
     def __str__(self):
         return str(self.purchased_date) + " " + str(self.supplier_ref)
 
 class PurchaseItem(models.Model):
     purchase_item_id = models.BigAutoField(primary_key=True)
-    purchase_ref = models.ForeignKey(PurchaseOrderHeader, on_delete = models.CASCADE)
+    purchase_ref = models.ForeignKey(PurchaseHeaderDetail, on_delete = models.CASCADE)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
     quantity = models.IntegerField()
     unit_cost_price = models.IntegerField()
@@ -109,7 +109,7 @@ class PurchaseItem(models.Model):
     
 class PurchasePayment(models.Model):
     purchase_payment_id = models.BigAutoField(primary_key=True)
-    purchase_ref = models.ForeignKey(PurchaseOrderHeader, on_delete=models.CASCADE)
+    purchase_ref = models.ForeignKey(PurchaseHeaderDetail, on_delete=models.CASCADE)
     payment_date = models.DateTimeField(auto_now_add=True)
     paid_amount = models.IntegerField()
     balance_amount = models.IntegerField()
@@ -130,7 +130,7 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
-class SaleOrderHeader(models.Model):
+class SaleHeaderDetail(models.Model):
     sale_id = models.BigAutoField(primary_key=True)
     customer_ref = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     sold_date = models.DateTimeField(auto_now_add=True)
@@ -139,13 +139,13 @@ class SaleOrderHeader(models.Model):
     discount_amount = models.IntegerField(default=0)
     total_amount = models.IntegerField()
     class Meta:
-        db_table = 'sale_order_header'
+        db_table = 'sale_header_detail'
     def __str__(self):
         return str(self.sold_date) + " " + str(self.customer_ref)
 
 class SaleItem(models.Model):
     sale_item_id = models.BigAutoField(primary_key=True)
-    sale_ref = models.ForeignKey(SaleOrderHeader, on_delete = models.CASCADE)
+    sale_ref = models.ForeignKey(SaleHeaderDetail, on_delete = models.CASCADE)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
     quantity = models.IntegerField()
     unit_sell_price = models.IntegerField()
@@ -156,7 +156,7 @@ class SaleItem(models.Model):
 
 class SalePayment(models.Model):
     sale_payment_id = models.BigAutoField(primary_key=True)
-    sale_ref = models.ForeignKey(SaleOrderHeader, on_delete=models.CASCADE)
+    sale_ref = models.ForeignKey(SaleHeaderDetail, on_delete=models.CASCADE)
     payment_date = models.DateTimeField(auto_now_add=True)
     paid_amount = models.IntegerField()
     balance_amount = models.IntegerField()
@@ -179,7 +179,7 @@ class Warehouse(models.Model):
         return self.warehouse_name
 
 def get_warehouse_default():
-    return Warehouse.objects.get(id=1)
+    return Warehouse.objects.get(warehouse_id=1).pk
 
 class StockDetail(models.Model):
     stock_id = models.BigAutoField(primary_key=True)
