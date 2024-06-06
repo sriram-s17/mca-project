@@ -124,19 +124,21 @@ class Customer(models.Model):
     age = models.IntegerField(null=True, blank=True)
     phone_regex = RegexValidator(regex=r'^(\d{10})$', message="Phone number must be entered in the 10 digit format: '9999999999'")
     phoneno = models.CharField(validators=[phone_regex], max_length=13, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
     address = models.TextField(max_length=100, null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = "customer"
     def __str__(self):
-        return self.name
+        return self.customer_name
 
 class SaleHeaderDetail(models.Model):
     sale_id = models.BigAutoField(primary_key=True)
     customer_ref = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     sold_date = models.DateTimeField(auto_now_add=True)
     bill_amount = models.IntegerField()
-    discount_percent = models.IntegerField(default=0)
-    discount_amount = models.IntegerField(default=0)
+    discount_percent = models.FloatField(default=0, blank=True)
+    discount_amount = models.IntegerField(default=0, blank=True)
     total_amount = models.IntegerField()
     class Meta:
         db_table = 'sale_header_detail'

@@ -5,102 +5,131 @@
 {% block content %}
 <h2>Add Sale</h2>
 <p><a href="/sales/"><button>Back to Sales</button></a></p>
+
 <form method = "POST" action="">
     {% csrf_token %}
-    {{customer_ref_form}}
-    <div class="sale_items_block">
-
-    </div>
-    <button type="button" id="add_item">Add Item</button>
     <div>
-        <label for="id_total_amt">Total Amount</label>
-        <input type="number" name="total_amt" id="id_total_amt" readonly>
+        {{sale_header_form.customer_ref.label_tag}}
+        {{sale_header_form.customer_ref}}
+        <a href="/customers/add?next=add_sale"><button type="button">Add new Customer</button></a>
     </div>
-    <button type="submit">Add Sale and Next</button>
+    <div id="sale_items_block">
+        
+    </div>
+    <button type="button" id="add_item_button">Add Item</button>
+    <div>
+        <label for="id_bill_amount">Bill Amount</label>
+        <input type="number" name="bill_amount" id="id_bill_amount" readonly>
+    </div>
+    <div>
+        {{sale_header_form.discount_percent.label_tag}}
+        {{sale_header_form.discount_percent}}
+    </div>
+    <div>
+        {{sale_header_form.discount_amount.label_tag}}
+        {{sale_header_form.discount_amount}}
+    </div>
+    <div>
+        <label for="id_total_amount">Total Amount</label>
+        <input type="number" name="total_amount" id="id_total_amount" readonly>
+    </div>
+    <button type="submit">Add Sale</button>
 </form>
 <script>
+    let product_details = JSON.parse("{{product_details|escapejs}}")
+    let bill_amount = document.querySelector("input[name='bill_amount']")
+    let total_amount = document.querySelector("input[name='total_amount']")
+    let discount_amount =  document.querySelector("#id_discount_amount")
+    let discount_percent =  document.querySelector("#id_discount_percent")
+    let discount_inputs = [discount_amount, discount_percent]
+    discount_inputs.forEach((element)=>{
+        element.addEventListener("change", (e)=>{
+            calcdiscount(e.target)
+        })
+    })
 
-    let product_selling_prices = JSON.parse("{{product_selling_prices|escapejs}}")
-    let items_block = document.querySelector(".sale_items_block")
-    let sale_item = document.createElement("div")
-    sale_item.classList.add("sale_item")
-    sale_detail_add_form = `{{sale_detail_add_form}}
-    <div>
-        <label for="id_product_amt">Total product amount</label>
-        <input type="number" name="product_amt" id="id_product_amt" readonly>
-    </div>`
-    sale_item.innerHTML = sale_detail_add_form
-    // discount_percent = sale_item.querySelector("input[name='discount_percent']")
-    // discount_amount = sale_item.querySelector("input[name='discount_amount']")
-    
-    // discount_percent.addEventListener("change", ()=>{
-    //     if(discount_percent.value == 0){
-    //         discount_amount.removeAttribute("readonly");
-    //     }
-    //     else{
-    //         discount_amount.setAttribute("readonly");
-    //         discount_amount.value = discount_percent
-    //     }
-    // })
+    let items_block = document.querySelector("#sale_items_block")    
+    let sale_item_form = `
+        {{sale_item_form}}
+        <div>
+            <label for="id_product_amount">bill product amount</label>
+            <input type="number" name="product_amount" id="id_product_amount" readonly>
+        </div>
+        <button type="button" class="remove_item_button">Remove Item</button>`
+    let formNum = 0
+    // initially add one sale item form
+    add_sale_item()
 
-    items_block.appendChild(sale_item)
-    sale_item.querySelector("input[name='quantity']").addEventListener("change", (e)=>{
-        calcproductprice(e)
+    document.querySelector("#add_item_button").addEventListener("click", ()=>{
+        add_sale_item()
     })
-    sale_item.querySelector("input[name='unit_sell_price']").addEventListener("change", (e)=>{
-        calcproductprice(e)
-    })
-    let choosed_product_detail_ref = sale_item.querySelector("select[name='product_detail_ref']")
-    choosed_product_detail_ref.addEventListener("change",()=>{
-        sale_item.querySelector("input[name='unit_sell_price']").value = product_selling_prices[choosed_product_detail_ref.value]
-    })
-    
-    let add_item_btn = document.querySelector("#add_item")
-    add_item_btn.addEventListener("click", ()=>{    
+
+    function add_sale_item(){
         let sale_item = document.createElement("div")
-        sale_item.setAttribute("class","sale_item")
-        sale_item.innerHTML = sale_detail_add_form
-
-        const remove_item_btn = document.createElement("button")
-        remove_item_btn.setAttribute("type","button")
-        remove_item_btn.classList.add("remove_item")
-        remove_item_btn.textContent = "Remove Item"
-        remove_item_btn.addEventListener("click", ()=>{
-            remove_item_btn.parentElement.remove()
-        })
-
-        sale_item.appendChild(remove_item_btn)
+        sale_item.classList.add("sale_item")
+        sale_item.innerHTML = sale_item_form.replace(RegExp("id_", 'g'), `id_form-${formNum}_`)
+        formNum++
         items_block.appendChild(sale_item)
-        sale_item.querySelector("input[name='quantity']").addEventListener("change", (e)=>{
-            calcproductprice(e)
-        })
-        sale_item.querySelector("input[name='unit_sell_price']").addEventListener("change", (e)=>{
-            calcproductprice(e)
-        })
-        let choosed_product_detail_ref = sale_item.querySelector("select[name='product_detail_ref']")
-        choosed_product_detail_ref.addEventListener("change",()=>{
-            sale_item.querySelector("input[name='unit_sell_price']").value = product_selling_prices[choosed_product_detail_ref.value]
-        })
-    })
 
+        sale_item.querySelector(".remove_item_button").addEventListener("click", (e)=>{
+            e.target.parentElement.remove()
+        })
+        sale_item.querySelector("select").addEventListener("change", (e)=>{
+            sale_item.querySelector("input[name='unit_sell_price']").value = product_details[e.target.value]
+        })
+        sale_item.querySelectorAll("input[name='quantity'], input[name='unit_sell_price'], select").forEach((element)=>{
+            element.addEventListener("change", (e)=>{
+                calcproductprice(e)
+            })
+        })
+    }
 
     function calcproductprice(e){
-        quantity = e.target.closest('.sale_item').querySelector("input[name='quantity']")
-        sell_price = e.target.closest('.sale_item').querySelector("input[name='unit_sell_price']")
+        sale_item = e.target.closest('.sale_item')
+        quantity = sale_item.querySelector("input[name='quantity']")
+        sell_price = sale_item.querySelector("input[name='unit_sell_price']")
         
         if(quantity.value!="" && sell_price.value!=""){
-            e.target.closest('.sale_item').querySelector("input[name='product_amt']").value = quantity.value * sell_price.value
-            calctotalprice()
+            sale_item.querySelector("input[name='product_amount']").value = quantity.value * sell_price.value
+            calcbillprice()
         }
     }
 
-    function calctotalprice(){
+    function calcbillprice(){
         let sale_items = document.querySelectorAll('.sale_item')
-        let total = 0
+        let amount = 0
         sale_items.forEach((sale_item)=>{
-            total += sale_item.querySelector("input[name='quantity']").value*sale_item.querySelector("input[name='unit_sell_price']").value
-            document.querySelector("input[name='total_amt']").value = total
+            quantity = sale_item.querySelector("input[name='quantity']")
+            sell_price = sale_item.querySelector("input[name='unit_sell_price']")
+            
+            amount += quantity.value * sell_price.value
+            bill_amount.value = amount
+
+            //calculate discountamount after generating bill amount, it is not efficient 
+            //bcoz it just minus total amount based on first specified discount amount only not first based on discount percent
+            if(discount_amount.value !="" && discount_amount.value != 0){
+                calcdiscount(discount_amount)
+            }
+            else if(discount_percent.value !="" && discount_percent.value != 0){
+                calcdiscount(discount_percent)
+            }
+            // when both are zero, then total amount is just assigned as bill amount
+            else{
+                total_amount.value = bill_amount.value
+            }
         })
+    }
+
+    function calcdiscount(element){
+        if(bill_amount.value != "" && bill_amount.value != 0){
+            if(element==discount_amount){
+                discount_percent.value = ((discount_amount.value/bill_amount.value)*100).toFixed(2)
+            } 
+            else{
+                discount_amount.value = Math.round(bill_amount.value * discount_percent.value / 100)
+            }
+            total_amount.value = bill_amount.value - discount_amount.value
+        }
     }
 </script>
 {% endblock %}

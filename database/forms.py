@@ -66,15 +66,15 @@ class CustomerForm(RequiredModelForm):
         model = Customer
         fields = '__all__'
 
-# class CustomerRefForm(RequiredModelForm):
-#     class Meta:
-#         model = Sales
-#         fields = ['customer_ref']
+class SaleHeaderForm(RequiredModelForm):
+    class Meta:
+        model = SaleHeaderDetail
+        fields = ['customer_ref','discount_percent', 'discount_amount']
 
-# class SaleDetailsForm(RequiredModelForm):
-#     class Meta:
-#         model = SaleDetails
-#         fields = ['product_detail_ref','quantity','unit_sell_price']
+class SaleItemForm(RequiredModelForm):
+    class Meta:
+        model = SaleItem
+        fields = ['product_detail_ref','quantity','unit_sell_price']
 
 
 class WarehouseForm(RequiredModelForm):

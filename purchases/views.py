@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
-from django.forms import inlineformset_factory
 # Create your views here.
 class ViewPurchases(View):
     def get(self, request):
@@ -103,7 +102,7 @@ class AddPurchase(View):
                 new_stock = StockDetail(product_detail_ref_id=prod_detail_ref_data[i], quantity=quantity_data[i])
                 new_stock.save()
                     
-        return redirect("add_payment", new_purchase.purchase_id)
+        return redirect("view_purchase", new_purchase.purchase_id)
 
 class AddPayment(View):
     def get(self, request, id):

@@ -15,9 +15,12 @@ class AddCustomer(View):
         return render(request, 'add_customer.html', {'customer_form':CustomerForm})
 
     def post(self, request):
+        nextpage = request.GET.get("next", None)
         customer_form_data = CustomerForm(request.POST)
         if customer_form_data.is_valid():
-            customer_form_data.save()
+            customer = customer_form_data.save()
+            if nextpage=='add_sale':
+                return redirect("/sales/add?cid="+str(customer.customer_id))
             context = { 'customer_form':CustomerForm, "message":"customer added !" }
         else:
             context = { 'customer_form':customer_form_data }

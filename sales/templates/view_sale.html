@@ -4,18 +4,19 @@
 
 {% block content %}
 <h2>Sale Details</h2>
+<a href="/sales/"><button>Back to Sales</button></a>
 <table class="table">
     <tr>
         <th>Id</th>
-        <td>{{sale.id}}</td>
+        <td>{{sale.sale_id}}</td>
     </tr>
     <tr>
         <th>saled Date</th>
         <td>{{sale.sold_date}}</td>
     </tr>
     <tr>
-        <th>Supplier</th>
-        <td>{{sale.supplier_ref}}</td>
+        <th>Customer</th>
+        <td>{{sale.customer_ref}}</td>
     </tr>
 </table>
 <h3>Products</h3>
@@ -27,18 +28,22 @@
         <th>Total</th>
     </thead>
     <tbody>
-        {% for product in sale_details %}
+        {% for product in sale_items %}
         <tr>
             <td>{{product.product_detail_ref}}</td>
             <td class="quantity">{{product.quantity}}</td>
-            <td class="unit_cost_price">{{product.unit_cost_price}}</td>
+            <td class="unit_sell_price">{{product.unit_sell_price}}</td>
             <td class="total"></td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 <p id="bill_amount"><span>Product Bill Amount: </span><span>{{sale.bill_amount}}</span></p>
+{% if prev_balance != 0 %}
 <p id="prev_balance"><span>Previous Balance: </span><span>{{prev_balance}}</span></p>
+{% endif %}
+<p id="discount_percent"><span>Discount Percent: </span><span>{{sale.discount_percent}}</span></p>
+<p id="discount_amount"><span>Discount Amount: </span><span>{{sale.discount_amount}}</span></p>
 <p id="total_amount"><span>Total Amount: </span><span>{{sale.total_amount}}</span></p>
 <h3>sale Payments</h3>
 <table class="table">
@@ -48,26 +53,37 @@
         <th>Balance</th>
     </thead>
     <tbody>
-        {% for payment in sale_payments %}
-        <tr>
-            <td>{{payment.payment_date}}</td>
-            <td>{{payment.paid_amount}}</td>
-            <td>{{payment.balance_amount}}</td>
-        </tr>
-        {% endfor %}
+        {% if sale_payments %}
+            {% for payment in sale_payments %}
+            <tr>
+                <td>{{payment.payment_date}}</td>
+                <td>{{payment.paid_amount}}</td>
+                <td>{{payment.balance_amount}}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3" style="text-align: center; font-size: 16px;">No Payment Done</td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
-{% if last_purch_from_this_sup and balance_amount > 0 %}
-<p><a href="{% url 'add_payment' sale.id %}"><button>Add Payment</button></a></p>
+{% if last_sale_to_customer and balance_amount > 0 %}
+<div>
+    <p>Balance Amount to Pay: {{balance_amount}}</p>
+    <p><a href="{% url 'add_sale_payment' sale.sale_id %}"><button>Add Payment</button></a></p>
+</div>
+{% elif last_sale_to_customer and balance_amount == 0 %}
+<p style="text-align: center; font-size: 16px;">Full amount paid</p>
 {% else %}
 <p>This sale balance is added to next sale from this supplier</p>
 {% endif %}
 <script>
     quantities = document.querySelectorAll(".quantity")
-    unit_cost_prices =  document.querySelectorAll(".unit_cost_price")
+    unit_sell_prices =  document.querySelectorAll(".unit_sell_price")
     totals = document.querySelectorAll(".total")
     for(let i=0; i<quantities.length; i++){
-        totals[i].textContent =  parseFloat(quantities[i].textContent) * parseFloat(unit_cost_prices[i].textContent)
+        totals[i].textContent =  parseFloat(quantities[i].textContent) * parseFloat(unit_sell_prices[i].textContent)
     }
 </script>
 {% endblock %}
