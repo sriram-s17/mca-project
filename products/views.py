@@ -157,6 +157,50 @@ class ViewProducts(View):
             "products":product_list
         }
         return render(request, 'products.html', context)
+    
+class ViewProduct(View):
+    def get(self, request, id):
+        product = Product.objects.get(product_id=id)
+        product_dict = {"product_id":product.product_id, "product_name": product.product_name,
+                        "category_ref": product.category_ref, "brand_ref": product.brand_ref,
+                        "description":product.description, "has_variants":product.has_variants}
+        
+        if product_dict["has_variants"]:
+            variants = ProductVariant.objects.filter(product_ref=product_dict["product_id"])
+            variants_list = []
+            if variants:
+                for variant in variants:
+                    variant_dict = {"variant_id": variant.variant_id, "variant_name":variant.variant_name}
+                    
+                    var_attr_values = VariantAttributeValue.objects.filter(variant_ref=variant)
+                    attr_values_list = []
+                    for attr_value in var_attr_values:
+                        attr_values_list.append({"attribute":attr_value.attribute_ref, "value":attr_value.value})
+                    variant_dict.update({"attr_values":attr_values_list})
+                    
+                    product_detail = ProductDetail.objects.filter(variant_ref=variant)[0]
+                    variant_dict.update({"product_detail_id":product_detail.prod_detail_id, "product_code":product_detail.product_code, 
+                                 "product_image":product_detail.product_image, "selling_price":product_detail.selling_price, 
+                                 "low_stock_threshold": product_detail.low_stock_threshold, "is_active":product_detail.is_active})
+
+                    stock = StockDetail.objects.filter(product_detail_ref = product_detail)
+                    if stock:
+                        stock = stock[0]
+                        variant_dict.update({"quantity": stock.quantity})
+                    
+                    variants_list.append(variant_dict)
+                product_dict.update({"variants":variants_list})
+        else:
+            product_detail = ProductDetail.objects.filter(product_ref=product_dict["product_id"])[0]
+            product_dict.update({"product_detail_id":product_detail.prod_detail_id, "product_code":product_detail.product_code, 
+                                 "product_image":product_detail.product_image, "selling_price":product_detail.selling_price, 
+                                 "low_stock_threshold": product_detail.low_stock_threshold, "is_active":product_detail.is_active})
+            
+            stock = StockDetail.objects.filter(product_detail_ref = product_detail)[0]
+            if stock:
+                product_dict.update({"quantity": stock.quantity})
+        
+        return render(request, "view_product.html", {"product":product_dict})
 
 class AddProduct(View):
     def get(self, request):

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Transfer Stocks{% endblock %}
+
+{% block content %}
+<h2>Transfer Stocks</h2>
+<form action="" method="POST">
+    {%csrf_token%}
+    {{product_select_form}}
+    <div id="from_stock">
+        <h3>From</h3>
+        <div>
+            <label for="id_from_warehouse_ref" class="required">From Warehouse</label>
+            <select name="from_warehouse_ref" id="id_from_warehouse_ref" required>
+                <option>--------</option>
+            </select>
+            <p id="available_stock" style="display:none;">Available Stock of the product in this warehouse: <span> </span></p>
+        </div>
+    </div>
+    <div id="to_stock">
+        <h3>To</h3>
+        {{transfer_stock_form}}
+    </div>
+    <p id="same_warehouse_error" style="display:none;color: red;">source and destination warehouses cannot be same</p>
+    <button id="transfer_button" disabled>Transfer</button>
+</form>
+<script>
+    let pdid = document.querySelector("select[name='product_detail_ref']")
+    let from_warehouse = document.querySelector("[name='from_warehouse_ref']")
+    let quantity = document.querySelector("[name='quantity']")
+    let available_stock = document.querySelector("#available_stock")
+    let to_warehouse = document.querySelector("[name='warehouse_ref']")
+    // let to_quantity = document.querySelector("[name='to_quantity']")
+    let transfer_button = document.querySelector("#transfer_button")
+    let same_warehouse_error= document.querySelector("#same_warehouse_error")
+    
+    //initially calls the get_stock_data function if the value is already selected
+    if (pdid.value != ""){
+        get_stock_data()
+    }
+    
+    //adding change event listener to the product selection input
+    pdid.addEventListener("change",get_stock_data)
+    function get_stock_data(){
+        from_warehouse.innerHTML = "<option>--------</option>"
+        fetch("/stocks/products/warehouseandquantity?pdid="+pdid.value)
+        .then(response=>{
+            if(!response.ok){
+                throw new Error("HTTP error:",response.status)
+            }
+            return response.json()
+        })
+        .catch(error=>{
+            alert("unable to get stock data of the product to transfer")
+            console.log(error)
+        })
+        .then(data=>{
+            generateoptions(data)
+        })
+
+    }
+
+    let urlParams = new URLSearchParams(window.location.search)
+
+    //create options dynamically from the fetched stock data
+    let stock_data
+    function generateoptions(fetched_data){
+        stock_data = JSON.parse(fetched_data)
+        console.log(stock_data)
+        for(let data in stock_data){
+            let option = document.createElement("option")
+            option.value = stock_data[data]['warehouse']["id"]
+            option.textContent = stock_data[data]['warehouse']["name"]
+            from_warehouse.appendChild(option)
+        }
+
+        //to select warehouse automatically from url
+        // if(urlParams.has("pdid")&&urlParams.has("wid")){
+        //     if(urlParams.get("pdid")==pdid.value){
+        //         from_warehouse.options[urlParams.get("wid")].selected = "selected"
+        //     }
+        // }
+        from_warehouse.dispatchEvent(new Event("change"))
+    }
+
+    //adding change event listener to both the warehouse selection input
+    let transfer_warehouses = [from_warehouse, to_warehouse]
+    transfer_warehouses.forEach((warehouse)=>{
+        warehouse.addEventListener("change",()=>{
+            //dont allow to submit if both warehouse are same
+            if(from_warehouse.value == to_warehouse.value){
+                transfer_button.disabled = true
+                same_warehouse_error.style.display = "block"
+            }
+            else{
+                transfer_button.disabled = false
+                same_warehouse_error.style.display = "none"
+            }
+
+            //set min value for the from quantity input
+            if(warehouse==from_warehouse){
+                if(stock_data!=""){
+                    for(data in stock_data){
+                        if(stock_data[data]["warehouse"]["id"]==from_warehouse.value){
+                            let max_value = stock_data[data]["quantity"]
+                            quantity.setAttribute("max", max_value)
+                            available_stock.style.display = "block"
+                            available_stock.querySelector("span").textContent = max_value
+                            if(quantity.value > max_value){
+                                quantity.value = max_value
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    })
+</script>
+{% endblock %}

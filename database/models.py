@@ -204,6 +204,3 @@ class ProductPriceHistory(models.Model):
         db_table = "product_price_history"
     def __str__(self):
         return self.product_detail_ref + " " + self.updated_date
-    
-# class testimageupload(models.Model):
-#     image = models.ImageField(upload_to="testimage")

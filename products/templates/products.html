@@ -19,6 +19,7 @@
             <th>Product Code</th>
             <th>Selling Price</th>
             <th>Is Active</th>
+            <th>View</th>
             <th>Edit</th>
             <th>Delete</th>
         </tr>
@@ -45,6 +46,7 @@
                     Inactive
                     {% endif %}
                 </td>
+                <td><a href="{% url 'view_product' product.product_id %}"><button>view</button></a></td>
                 <td><a href="{% url 'edit_product' product.product_id %}"><button>Edit</button></a></td>
                 <td><a href="{% url 'delete_product' product.product_id %}"><button>delete</button></a></td>
             </tr>
@@ -56,6 +58,7 @@
                 <td>{{product.brand_ref}}</td>
                 <td colspan="2"></td>
                 <td><a href="{% url 'add_variant' product.product_id %}"><button>Add Variant</button></a></td>
+                <td><a href="{% url 'view_product' product.product_id %}"><button>view</button></a></td>
                 <td><a href="{% url 'edit_product' product.product_id %}"><button>Edit</button></a></td>
                 <td><a href="{% url 'delete_product' product.product_id %}"><button>delete</button></a></td>
             </tr>
@@ -86,6 +89,7 @@
                     Inactive
                     {% endif %}
                 </td>
+                <td></td>
                 <td><a href="{% url 'edit_variant' variant.variant_id %}"><button>Edit</button></a></td>
                 <td><a href="{% url 'delete_variant' variant.variant_id %}"><button>delete</button></a></td>
             </tr>

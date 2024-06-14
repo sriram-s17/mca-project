@@ -1,7 +1,7 @@
-from django.forms import ModelForm
+from django import forms
 from .models import *
    
-class RequiredModelForm(ModelForm):
+class RequiredModelForm(forms.ModelForm):
     required_css_class = 'required'
 
 class CategoryForm(RequiredModelForm):
@@ -76,13 +76,36 @@ class SaleItemForm(RequiredModelForm):
         model = SaleItem
         fields = ['product_detail_ref','quantity','unit_sell_price']
 
-
 class WarehouseForm(RequiredModelForm):
     class Meta:
         model = Warehouse
         fields = '__all__'
 
-# # class imageuploadform(RequiredModelForm):
-# #     class Meta:
-# #         model = testimageupload
-# #         fields = '__all__'
+class StockDetailForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ['warehouse_ref','product_detail_ref','quantity']
+        labels = {
+            'warehouse_ref': 'Choose Warehouse',
+            'product_detail_ref': 'Choose Product',
+            'quantity': 'Add or Minus Quantity'
+        }
+
+class ProductSelectForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ["product_detail_ref"]
+        labels = {
+            'product_detail_ref':'Choose Product'
+        }
+
+class TransferStockForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ["warehouse_ref", "quantity"]
+        labels = {
+            'warehouse_ref': "To warehouse",
+        }
+        widgets = {
+            "quantity": forms.NumberInput(attrs={"min":"0"})
+        }

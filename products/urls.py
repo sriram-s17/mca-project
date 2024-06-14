@@ -15,6 +15,7 @@ urlpatterns = [
     path('attributes/edit/<int:id>/', EditAttribute.as_view(), name = 'edit_attribute'),
     path('attributes/delete/<int:id>/', DeleteAttribute.as_view(), name = 'delete_attribute'),
     path('', ViewProducts.as_view(), name='view_products'),
+    path('<int:id>/', ViewProduct.as_view(), name='view_product'),
     path('add/', AddProduct.as_view(), name='add_product'),
     path('<int:id>/variant/add', AddVariant.as_view(), name='add_variant'),
     path('edit/<int:id>/', EditProduct.as_view(), name = 'edit_product'),

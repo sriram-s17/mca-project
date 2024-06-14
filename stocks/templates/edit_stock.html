@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Stocks{% endblock %}
+
+{% block content %}
+<h2>Edit Stocks</h2>
+<form action="" method="POST">
+    {% csrf_token %}
+    {{stock_form}}
+    
+    <p id="available_stock">Available stock of this product: 
+        <span>
+        {% if available_stock %}
+            {{available_stock}}
+        {% endif %}
+        </span>
+    </p>
+    
+    <button>Save</button>
+</form>
+<script>
+    let product = document.querySelector("#id_product_detail_ref")
+    let warehouse = document.querySelector("#id_warehouse_ref")
+    let available_stock_span = document.querySelector("#available_stock span")
+    let quantity = document.querySelector("[name='quantity']")
+    let urlParams = new URLSearchParams(window.location.search)
+    if(urlParams.has('pdid')){
+        quantity.setAttribute("min", -parseInt(available_stock_span.textContent))
+    }
+    let elements = [warehouse, product]
+    elements.forEach(element => {
+        element.addEventListener("change", ()=>{
+        fetch(`/stocks/products/quantity?pdid=${product.value}&wid=${warehouse.value}`)
+        .then(response=>{
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            return response.json()
+        })
+        .then(data=>{
+            available_stock_span.textContent = data
+            quantity.setAttribute("min", -(data))
+            if(quantity.value < -data){
+                quantity.value = - data
+            }
+            
+        })
+        .catch(error=>{
+            document.querySelector("#available_stock span").textContent = "unable to fetch"
+            console.log(error)
+        }) 
+    });
+    })
+</script>
+{% endblock %}

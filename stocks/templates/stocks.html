@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% block title %}Stocks{% endblock %}
+
+{% block content %}
+<h2>Stocks</h2>
+<a href="/stocks/edit/"><button>Add Stock for products</button></a>
+<table class="table">
+    <thead>
+        <tr>
+            <th rowspan="2">S.No.</th>
+            <th rowspan="2">Product</th>
+            <th colspan="{{warehouses|length}}">Warehouses and Quantities</th>
+            <th rowspan="2">Edit</th>
+            <th rowspan="2">Transfer stock</th>
+        </tr>
+        <tr>
+            {% for warehouse in warehouses %}
+            <th>{{warehouse.warehouse_name}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for product, stocks in product_stocks.items %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{product}}</td>
+                {% for warehouse in warehouses %}
+                    {% with warehouse_id=warehouse.warehouse_id %}
+                        {% if warehouse_id in stocks %}
+                            <td>{{stocks|keyvalue:warehouse_id}}</td>
+                        {% else %}
+                            <td>-</td>
+                        {% endif %}
+                    {% endwith %}
+                {% endfor %}
+                <td><a href="/stocks/edit?pdid={{product.prod_detail_id}}"><button>Edit Stock</button></a></td>
+                <td><a href="/stocks/transfer?pdid={{product.prod_detail_id}}"><button>Transfer Stock</button></a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
