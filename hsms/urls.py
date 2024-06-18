@@ -25,11 +25,12 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='home.html')),
-    path('products/', include('products.urls')),
+    # path('products/', include('products.urls')),
     path('suppliers/', include('suppliers.urls')),
     path('customers/', include('customers.urls')),
     path('warehouses/', include('warehouses.urls')),
-    path('purchases/', include('purchases.urls')),
-    path('sales/', include('sales.urls')),
-    path('stocks/', include('stocks.urls')),
+    # path('purchases/', include('purchases.urls')),
+    # path('sales/', include('sales.urls')),
+    # path('stocks/', include('stocks.urls')),
+    # path('sales/report/', include('salesreport.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

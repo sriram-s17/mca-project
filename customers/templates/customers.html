@@ -9,9 +9,12 @@
             <tr>
                 <th>id</th>
                 <th>Name</th>
-                <th>Age</th>
+                <th>Gender</th>
+                <th>dob</th>
                 <th>Phone no</th>
+                <th>Email</th>
                 <th>Address</th>
+                <th>Added Date</th>
                 <th>edit</th>
                 <th>delete</th>
             </tr>
@@ -21,9 +24,12 @@
             <tr>
                 <td>{{customer.customer_id}}</td>
                 <td>{{customer.customer_name}}</td>
-                <td>{{customer.age}}</td>
+                <td>{{customer.gender}}</td>
+                <td>{{customer.dob}}</td>
                 <td>{{customer.phoneno}}</td>
+                <td>{{customer.email}}</td>
                 <td>{{customer.address}}</td>
+                <td>{{customer.created_date}}</td>
                 <td><a href="{% url 'edit_customer' customer.customer_id %}"><button>edit</button></a></td>
                 <td><a href="{% url 'delete_customer' customer.customer_id %}"><button>delete</button></a></td>
             </tr>

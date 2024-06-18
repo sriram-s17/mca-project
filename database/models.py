@@ -19,6 +19,14 @@ class Brand(models.Model):
     def __str__(self):
         return self.brand_name
 
+class Attribute(models.Model):
+    attribute_id = models.BigAutoField(primary_key=True)
+    attribute_name = models.CharField(max_length=60)
+    class Meta:
+        db_table = 'attribute'
+    def __str__(self):
+        return self.attribute_name
+
 class Product(models.Model):
     product_id = models.BigAutoField(primary_key=True)
     product_name = models.CharField(max_length=100)
@@ -31,6 +39,15 @@ class Product(models.Model):
     def __str__(self):
         return "p:" + str(self.product_name)
 
+class ProductAttribute(models.Model):
+    product_attr_id = models.BigAutoField(primary_key=True)
+    product_ref = models.ForeignKey(Product, on_delete=models.CASCADE)
+    attribute_ref = models.ForeignKey(Attribute, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'product_attribute'
+    def __str__(self):
+        return str(self.attribute_ref)
+
 class ProductVariant(models.Model):
     variant_id = models.BigAutoField(primary_key=True)
     product_ref = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -39,19 +56,11 @@ class ProductVariant(models.Model):
         db_table = 'product_variant'
     def __str__(self):
         return " v:" + self.variant_name
-
-class Attribute(models.Model):
-    attribute_id = models.BigAutoField(primary_key=True)
-    attribute_name = models.CharField(max_length=60)
-    class Meta:
-        db_table = 'attribute'
-    def __str__(self):
-        return self.attribute_name
-
+    
 class VariantAttributeValue(models.Model):
-    var_attr_value_id = models.BigAutoField(primary_key=True)
+    variant_attr_value_id = models.BigAutoField(primary_key=True)
     variant_ref = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
-    attribute_ref = models.ForeignKey(Attribute, on_delete=models.CASCADE)
+    product_attr_ref = models.ForeignKey(ProductAttribute, on_delete=models.CASCADE)
     value = models.CharField(max_length=60)
     class Meta:
         db_table = 'variant_attribute_value'
@@ -59,18 +68,57 @@ class VariantAttributeValue(models.Model):
         return str(self.variant_ref) + " " + str(self.value)
 
 class ProductDetail(models.Model):
-    prod_detail_id = models.BigAutoField(primary_key=True)
+    product_detail_id = models.BigAutoField(primary_key=True)
     product_ref = models.ForeignKey(Product, on_delete=models.CASCADE)
     variant_ref = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True, default=None)
     product_code = models.CharField(max_length=30, unique=True, null=True, blank=True)
     product_image = models.ImageField(upload_to="product_images", null=True, blank=True, default=None)
-    selling_price = models.IntegerField(null=True, blank=True)
     low_stock_threshold = models.IntegerField(default=10)
     is_active = models.BooleanField(default=True)
     class Meta:
         db_table = 'product_detail'
     def __str__(self):
         return self.product_code + " "+ str(self.product_ref) +" " + str(self.variant_ref)
+
+class ProductPrice(models.Model):
+    product_price_id = models.BigAutoField(primary_key=True)
+    product_detail_ref = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
+    cost_price = models.IntegerField()
+    selling_price = models.IntegerField()
+    updated_date = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = "product_price"
+    def __str__(self):
+        return self.product_detail_ref + " " + self.updated_date
+
+def get_default_user():
+    return User.objects.get(id=1).pk
+    #shopowner password: owner123
+    
+class Warehouse(models.Model):
+    warehouse_id = models.BigAutoField(primary_key=True)
+    warehouse_name = models.CharField(max_length=60)
+    location = models.TextField(max_length=200, null=True, blank=True)
+    incharge_person = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=get_default_user)
+    class Meta:
+        db_table = 'warehouse'
+    def __str__(self):
+        return self.warehouse_name
+
+def get_warehouse_default():
+    return Warehouse.objects.get(warehouse_id=1).pk
+
+class StockDetail(models.Model):
+    stock_id = models.BigAutoField(primary_key=True)
+    warehouse_ref = models.ForeignKey(Warehouse, on_delete=models.SET_DEFAULT, default=get_warehouse_default)
+    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
+    price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
+    quantity = models.IntegerField()
+    updated_date = models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = "stock_detail"
+    def __str__(self):
+        return str(self.product_detail_ref) + " " + str(self.quantity)
 
 class Supplier(models.Model):
     supplier_id = models.BigAutoField(primary_key=True)
@@ -121,7 +169,9 @@ class PurchasePayment(models.Model):
 class Customer(models.Model):
     customer_id = models.BigAutoField(primary_key=True)
     customer_name = models.CharField(max_length=60)
-    age = models.IntegerField(null=True, blank=True)
+    gender = models.CharField(choices = (("male","Male"),("female","Female"), ("transgender","Transgender")), max_length=20, null=True, blank=True)
+    dob_regex = RegexValidator(regex=r'^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}$', message="dob must be in the format: dd/mm/yyyy")
+    dob = models.CharField(validators=[dob_regex], max_length=20, null=True, blank=True)
     phone_regex = RegexValidator(regex=r'^(\d{10})$', message="Phone number must be entered in the 10 digit format: '9999999999'")
     phoneno = models.CharField(validators=[phone_regex], max_length=13, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
@@ -149,6 +199,7 @@ class SaleItem(models.Model):
     sale_item_id = models.BigAutoField(primary_key=True)
     sale_ref = models.ForeignKey(SaleHeaderDetail, on_delete = models.CASCADE)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
+    price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
     quantity = models.IntegerField()
     unit_sell_price = models.IntegerField()
     class Meta:
@@ -166,41 +217,3 @@ class SalePayment(models.Model):
         db_table = 'sale_payment'
     def __str__(self):
         return str(self.payment_date)
-
-def get_default_user():
-    return User.objects.get(id=1).pk
-
-class Warehouse(models.Model):
-    warehouse_id = models.BigAutoField(primary_key=True)
-    warehouse_name = models.CharField(max_length=60)
-    location = models.TextField(max_length=200, null=True, blank=True)
-    incharge_person = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=get_default_user)
-    class Meta:
-        db_table = 'warehouse'
-    def __str__(self):
-        return self.warehouse_name
-
-def get_warehouse_default():
-    return Warehouse.objects.get(warehouse_id=1).pk
-
-class StockDetail(models.Model):
-    stock_id = models.BigAutoField(primary_key=True)
-    warehouse_ref = models.ForeignKey(Warehouse, on_delete=models.SET_DEFAULT, default=get_warehouse_default)
-    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
-    quantity = models.IntegerField()
-    updated_date = models.DateTimeField(auto_now=True)
-    class Meta:
-        db_table = "stock_detail"
-    def __str__(self):
-        return str(self.product_detail_ref) + " " + str(self.quantity)
-
-class ProductPriceHistory(models.Model):
-    price_history_id = models.BigAutoField(primary_key=True)
-    product_detail_ref = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
-    cost_price = models.IntegerField()
-    selling_price = models.IntegerField()
-    updated_date = models.DateTimeField(auto_now_add=True)
-    class Meta:
-        db_table = "product_price_history"
-    def __str__(self):
-        return self.product_detail_ref + " " + self.updated_date

@@ -68,7 +68,7 @@ class ViewSale(View):
 
 class AddSale(View):
     def get(self, request):
-        product_details = ProductDetail.objects.all().values_list('prod_detail_id', 'selling_price')
+        product_details = ProductDetail.objects.all().values_list('product_detail_id', 'selling_price')
         context = {
             'sale_header_form': SaleHeaderForm,
             'sale_item_form': SaleItemForm,

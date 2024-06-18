@@ -179,7 +179,7 @@ class ViewProduct(View):
                     variant_dict.update({"attr_values":attr_values_list})
                     
                     product_detail = ProductDetail.objects.filter(variant_ref=variant)[0]
-                    variant_dict.update({"product_detail_id":product_detail.prod_detail_id, "product_code":product_detail.product_code, 
+                    variant_dict.update({"product_detail_id":product_detail.product_detail_id, "product_code":product_detail.product_code, 
                                  "product_image":product_detail.product_image, "selling_price":product_detail.selling_price, 
                                  "low_stock_threshold": product_detail.low_stock_threshold, "is_active":product_detail.is_active})
 
@@ -192,7 +192,7 @@ class ViewProduct(View):
                 product_dict.update({"variants":variants_list})
         else:
             product_detail = ProductDetail.objects.filter(product_ref=product_dict["product_id"])[0]
-            product_dict.update({"product_detail_id":product_detail.prod_detail_id, "product_code":product_detail.product_code, 
+            product_dict.update({"product_detail_id":product_detail.product_detail_id, "product_code":product_detail.product_code, 
                                  "product_image":product_detail.product_image, "selling_price":product_detail.selling_price, 
                                  "low_stock_threshold": product_detail.low_stock_threshold, "is_active":product_detail.is_active})
             
