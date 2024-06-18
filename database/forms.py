@@ -4,21 +4,21 @@ from .models import *
 class RequiredModelForm(forms.ModelForm):
     required_css_class = 'required'
 
-# class CategoryForm(RequiredModelForm):
-#     class Meta:
-#         model = Category
-#         fields = '__all__'
+class CategoryForm(RequiredModelForm):
+    class Meta:
+        model = Category
+        fields = '__all__'
 
-# class BrandForm(RequiredModelForm):
-#     class Meta:
-#         model = Brand
-#         fields = '__all__'
+class BrandForm(RequiredModelForm):
+    class Meta:
+        model = Brand
+        fields = '__all__'
 
 
-# class AttributeForm(RequiredModelForm):
-#     class Meta:
-#         model = Attribute
-#         fields = '__all__'
+class AttributeForm(RequiredModelForm):
+    class Meta:
+        model = Attribute
+        fields = '__all__'
 
 # class ProductForm(RequiredModelForm):
 #     class Meta:
