@@ -16,27 +16,85 @@
     <div id="productdetail">
         {{detail_form}}
     </div>
+    {{attribute_formset.management_form}}
+    <div id="attributes_div" style="display:none;">
+        {% for form in attribute_formset %}
+            <div class="attribute_form">{{form}}</div>
+        {% endfor %}
+        <button type="button" id="add_attribute_btn">Add Attribute</button>
+    </div>
     <button id="save_button" type="submit">Save Product Details</button>
 </form>
 <script>
     const productdetailform = document.querySelector("#productdetail")
-    const save_button = document.querySelector("#save_button")
-    const has_variants = document.querySelector("#id_has_variants")
+    const add_button = document.querySelector("#add_button")
+    const has_variants_input = document.querySelector("#id_has_variants")
+    
+    //initial requirements for adding attributes
+    const attributes_div = document.querySelector("#attributes_div")
+    const add_attribute_btn = document.querySelector("#add_attribute_btn")
+    let attribute_select = `{{attribute_form}}
+            <button type="button" onclick="remove_attribute(this)">Remove</button>`
 
-    if(has_variants.checked){
-        productdetailform.style.display="none"
-        save_button.textContent = "Save Product Details"
-    }
+    //initially ordering all attribute_forms
+    order_id_n_label_of_attrs()
+    
+    //set product attribute disable feature
+    document.querySelectorAll("input[id*='DELETE']").forEach(deletebtn=>{
+        deletebtn.addEventListener("change", ()=>{            
+            select_element = deletebtn.closest(".attribute_form").querySelector("select")
+            if(deletebtn.checked){
+                select_element.disabled = true
+            }
+            else{
+                select_element.disabled = false
+            }
+        })
+    })
 
-    has_variants.addEventListener('change', ()=>{
-        if(has_variants.checked){
-            productdetailform.style.display="none"
-            save_button.textContent = "Save and Continue add variant"
+    //check the product has variant or not , then display respective content
+    has_variants_input.addEventListener('change', ()=>{
+        if(has_variants_input.checked){
+            productdetailform.style.display="none";
+            attributes_div.style.display = "block";
+            add_button.textContent = "Save and Continue add variant";
         }
         else{
             productdetailform.style.display="block"
-            save_button.textContent = "Save Product Details"
+            attributes_div.style.display = "none";
+            attributes_div.querySelectorAll(".attribute_form").forEach((element)=>{
+                element.remove()
+            })
+            add_button.textContent = "Add Product"
         }
-    });  
+    });
+
+    //add attribute if user click the button
+    add_attribute_btn.addEventListener("click", ()=>{
+        let attribute_form = document.createElement("div")
+        attribute_form.classList.add("attribute_form")
+        attribute_form.innerHTML = attribute_select
+        attributes_div.insertBefore(attribute_form, add_attribute_btn)
+
+        order_id_n_label_of_attrs()
+    })
+
+    //removes the attribute
+    function remove_attribute(btn){
+        btn.parentElement.remove()
+        order_id_n_label_of_attrs()
+    }
+
+    //regulate id and label of attribute_forms
+    function order_id_n_label_of_attrs(){
+        attrnum = 0
+        attributes_div.querySelectorAll(".attribute_form").forEach(attribute_form=>{
+            attrnum += 1
+            label = attribute_form.querySelector("label")
+            label.textContent =  `Attribute ${attrnum}`
+            label.setAttribute("for",  `id_attribute_ref_${attrnum}`)
+            attribute_form.querySelector("select").setAttribute("id", `id_attribute_ref_${attrnum}`)
+        })
+    }
 </script>
 {% endblock %}

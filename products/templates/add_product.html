@@ -7,7 +7,7 @@
 <a href="/products/"><button>Back to Products</button></a>
 
 {% if message %}
-<p>{{message}}</p>
+<p class="success-message">{{message}}</p>
 {% endif %}
 
 <form action="" method="POST" enctype="multipart/form-data">
@@ -15,22 +15,71 @@
     {{product_form}}
     <div id="productdetail">
         {{detail_form}}
+        {{selling_price_form}}
+    </div>
+    <div id="attributes_div" style="display: none;">
+
+        <button type="button" id="add_attribute_btn">Add Attribute</button>
     </div>
     <button id="add_button" type="submit">Add Product</button>
 </form>
 <script>
     const productdetailform = document.querySelector("#productdetail")
     const add_button = document.querySelector("#add_button")
-    const has_variants = document.querySelector("#id_has_variants")
-    has_variants.addEventListener('change', ()=>{
-        if(has_variants.checked){
-            productdetailform.style.display="none"
-            add_button.textContent = "Save and Continue add variant"
+    const has_variants_input = document.querySelector("#id_has_variants")
+    
+    //initial requirements for adding attributes
+    const attributes_div = document.querySelector("#attributes_div")
+    const add_attribute_btn = document.querySelector("#add_attribute_btn")
+    let attribute_select = `{{attribute_form}}
+            <button type="button" onclick="remove_attribute(this)">Remove</button>`
+
+    //check the product has variant or not , then display respective content
+    has_variants_input.addEventListener('change', ()=>{
+        if(has_variants_input.checked){
+            productdetailform.style.display="none";
+            attributes_div.style.display = "block";
+            add_button.textContent = "Save and Continue add variant";
         }
         else{
             productdetailform.style.display="block"
+            attributes_div.style.display = "none";
+            attributes_div.querySelectorAll(".attribute_form").forEach((element)=>{
+                element.remove()
+            })
             add_button.textContent = "Add Product"
         }
-    });  
+    });
+
+    //add attribute if user click the button
+    add_attribute_btn.addEventListener("click", ()=>{
+        let attribute_form = document.createElement("div")
+        attribute_form.classList.add("attribute_form")
+        attribute_form.innerHTML = attribute_select
+        // let attrnum = attributes_div.children.length 
+        // attribute_form.innerHTML = attribute_select.replace(RegExp(`Attribute`, "g"), `Attribute ${attrnum}`)
+        // attribute_form.innerHTML = attribute_form.innerHTML.replace(RegExp(`id_attribute_ref`, "g"), `id_attribute_ref_${attrnum}`)
+        attributes_div.insertBefore(attribute_form, add_attribute_btn)
+
+        order_id_n_label_of_attrs()
+    })
+
+    //removes the attribute
+    function remove_attribute(btn){
+        btn.parentElement.remove()
+        order_id_n_label_of_attrs()
+    }
+
+    //regulate id and label of attribute_forms
+    function order_id_n_label_of_attrs(){
+        attrnum = 0
+        attributes_div.querySelectorAll(".attribute_form").forEach(attribute_form=>{
+            attrnum += 1
+            label = attribute_form.querySelector("label")
+            label.textContent =  `Attribute ${attrnum}`
+            label.setAttribute("for",  `id_attribute_ref_${attrnum}`)
+            attribute_form.querySelector("select").setAttribute("id", `id_attribute_ref_${attrnum}`)
+        })
+    }
 </script>
 {% endblock %}

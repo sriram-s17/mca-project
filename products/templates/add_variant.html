@@ -7,7 +7,7 @@
 <a href="/products/"><button>Back to Products</button></a>
 
 {% if message %}
-<p>{{message}}</p>
+<p class="success-message">{{message}}</p>
 {% endif %}
 
 <p>Add variant for the product '{{product.product_name}}'</p>
@@ -15,33 +15,13 @@
     {% csrf_token %}
     {{variant_form}}
     {{detail_form}}
-    <div id="select_attribute_div">
-
+    <div>
+        <label for="id_selling_price">Selling Price:</label>
+        <input type="number" min="0" name="selling_price" id="id_selling_price">
     </div>
-    <button id="add_attribute" type="button">Add Attribute</button>
+    {% for form in attr_value_forms %}
+        {{form}}
+    {% endfor %}
     <button type="submit">Save</button>
 </form>
-<script>
-    const attr_value_form = `{{attr_value_form}}`
-    const allattributeDiv = document.querySelector("#select_attribute_div")
-    const addattrbutton = document.querySelector("#add_attribute")
-    addattrbutton.addEventListener("click", ()=>{
-        
-        //remove attribute button
-        let removeattrbutton = document.createElement("button")
-        removeattrbutton.setAttribute("class","removeattribute")
-        removeattrbutton.setAttribute("type","button")
-        removeattrbutton.textContent = "Remove attribute"
-        
-        //attribute value div
-        let attributesformDiv = document.createElement("div")
-        attributesformDiv.innerHTML = attr_value_form
-        attributesformDiv.appendChild(removeattrbutton)
-        
-        allattributeDiv.appendChild(attributesformDiv)
-        removeattrbutton.addEventListener("click",()=>{
-            removeattrbutton.parentElement.remove()
-        })
-    })
-</script>
 {% endblock %}

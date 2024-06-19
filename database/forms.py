@@ -14,37 +14,61 @@ class BrandForm(RequiredModelForm):
         model = Brand
         fields = '__all__'
 
-
 class AttributeForm(RequiredModelForm):
     class Meta:
         model = Attribute
         fields = '__all__'
 
-# class ProductForm(RequiredModelForm):
-#     class Meta:
-#         model = Product
-#         fields = '__all__'
+class ProductForm(RequiredModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__'
+        # widgets = {
+        #     "has_variants":forms.CheckboxInput(attrs={"class":"form-check-input","role":"switch"})
+        # }
 
-# class ProductDetailForm(RequiredModelForm):
-#     class Meta:
-#         model = ProductDetail
-#         fields = ['product_code', 'product_image',  'low_stock_threshold']
+class ProductDetailForm(RequiredModelForm):
+    class Meta:
+        model = ProductDetail
+        fields = ['product_code', 'product_image',  'low_stock_threshold']
 
-# class ProductDetailForm2(RequiredModelForm):
-#     class Meta:
-#         model = ProductDetail
-#         fields = ['product_code', 'product_image', 'low_stock_threshold', 'is_active']
+class ProductDetailForm2(RequiredModelForm):
+    class Meta:
+        model = ProductDetail
+        fields = ['product_code', 'product_image', 'low_stock_threshold', 'is_active']
 
-# class VariantForm(RequiredModelForm):
-#     use_required_attribute = True
-#     class Meta:
-#         model = ProductVariant
-#         fields = ['variant_name']
+class SellingPriceForm(forms.Form):
+    selling_price = forms.IntegerField(min_value=0, required=False)
 
-# class VarAttrValueForm(RequiredModelForm):
-#     class Meta:
-#         model = VariantAttributeValue
-#         fields = ['product_attr_ref', 'value']
+class ProductAttributeForm(RequiredModelForm):
+    class Meta:
+        model = ProductAttribute
+        fields = ['attribute_ref']
+        labels = {
+            "attribute_ref": "Attribute"
+        }
+
+class VariantForm(RequiredModelForm):
+    use_required_attribute = True
+    class Meta:
+        model = ProductVariant
+        fields = ['variant_name']
+
+class VarAttrValueForm(RequiredModelForm):
+    class Meta:
+        model = VariantAttributeValue
+        fields = ['product_attr_ref', 'value']
+        labels = {
+            "value":"Value of"
+        }
+        widgets = {
+            "product_attr_ref":forms.HiddenInput()
+        }
+
+# class VarAttrValueForm2(forms.Form):
+#     required_css_class = "required"
+#     product_attr_ref = forms.IntegerField(widget = forms.HiddenInput(attrs={"name":"product_attr_ref"}))
+#     value_of = forms.CharField(label="value of", widget=forms.TextInput(attrs={"name":"value"}))
 
 class SupplierForm(RequiredModelForm):
     class Meta:

@@ -83,8 +83,8 @@ class ProductDetail(models.Model):
 class ProductPrice(models.Model):
     product_price_id = models.BigAutoField(primary_key=True)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
-    cost_price = models.IntegerField()
-    selling_price = models.IntegerField()
+    cost_price = models.IntegerField(default=0)
+    selling_price = models.IntegerField(default=0)
     updated_date = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = "product_price"
