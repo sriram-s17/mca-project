@@ -38,7 +38,7 @@ class ProductDetailForm2(RequiredModelForm):
         fields = ['product_code', 'product_image', 'low_stock_threshold', 'is_active']
 
 class SellingPriceForm(forms.Form):
-    selling_price = forms.IntegerField(min_value=0, required=False)
+    selling_price = forms.FloatField(min_value=0, required=False)
 
 class ProductAttributeForm(RequiredModelForm):
     class Meta:
@@ -58,12 +58,19 @@ class VarAttrValueForm(RequiredModelForm):
     class Meta:
         model = VariantAttributeValue
         fields = ['product_attr_ref', 'value']
+        #this label is used in add variant page
         labels = {
             "value":"Value of"
         }
         widgets = {
             "product_attr_ref":forms.HiddenInput()
         }
+
+        #this label is used in edit variant page and the form is used as modelformset
+    def __init__(self, *args, **kwargs):
+        super(VarAttrValueForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['value'].label = f"value of {self.instance.product_attr_ref.attribute_ref}"
 
 # class VarAttrValueForm2(forms.Form):
 #     required_css_class = "required"
@@ -75,15 +82,15 @@ class SupplierForm(RequiredModelForm):
         model = Supplier
         fields = '__all__'
 
-# class PurchaseHeaderForm(RequiredModelForm):
-#     class Meta:
-#         model = PurchaseHeaderDetail
-#         fields = ['supplier_ref']
+class PurchaseHeaderForm(RequiredModelForm):
+    class Meta:
+        model = PurchaseHeaderDetail
+        fields = ['supplier_ref']
 
-# class PurchaseItemForm(RequiredModelForm):
-#     class Meta:
-#         model = PurchaseItem
-#         fields = ['product_detail_ref', 'quantity', 'unit_cost_price']
+class PurchaseItemForm(RequiredModelForm):
+    class Meta:
+        model = PurchaseItem
+        fields = ['product_detail_ref', 'quantity', 'unit_cost_price']
 
 class CustomerForm(RequiredModelForm):
     class Meta:

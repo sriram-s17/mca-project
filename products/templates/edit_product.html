@@ -7,14 +7,19 @@
 <a href="/products/"><button>Back to Products</button></a>
 
 {% if message %}
-<p>{{message}}</p>
+<p class="success-message">{{message}}</p>
+{% endif %}
+
+{% if error %}
+<p class="error-message">{{error}}</p>
 {% endif %}
 
 <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{product_form}}
-    <div id="productdetail">
+    <div id="productdetail" style="display:none;">
         {{detail_form}}
+        {{selling_price_form}}
     </div>
     {{attribute_formset.management_form}}
     <div id="attributes_div" style="display:none;">
@@ -27,7 +32,7 @@
 </form>
 <script>
     const productdetailform = document.querySelector("#productdetail")
-    const add_button = document.querySelector("#add_button")
+    const save_button = document.querySelector("#save_button")
     const has_variants_input = document.querySelector("#id_has_variants")
     
     //initial requirements for adding attributes
@@ -35,7 +40,7 @@
     const add_attribute_btn = document.querySelector("#add_attribute_btn")
     let attribute_select = `{{attribute_form}}
             <button type="button" onclick="remove_attribute(this)">Remove</button>`
-
+    
     //initially ordering all attribute_forms
     order_id_n_label_of_attrs()
     
@@ -54,25 +59,28 @@
 
     //check the product has variant or not , then display respective content
     has_variants_input.addEventListener('change', ()=>{
+        // alert("hi")
         if(has_variants_input.checked){
             productdetailform.style.display="none";
             attributes_div.style.display = "block";
-            add_button.textContent = "Save and Continue add variant";
         }
         else{
             productdetailform.style.display="block"
             attributes_div.style.display = "none";
-            attributes_div.querySelectorAll(".attribute_form").forEach((element)=>{
+            attributes_div.querySelectorAll(".new ").forEach((element)=>{
                 element.remove()
             })
-            add_button.textContent = "Add Product"
         }
     });
+
+    //initial checking of has_variants checkbox
+    const change_event = new Event("change")
+    has_variants_input.dispatchEvent(change_event)
 
     //add attribute if user click the button
     add_attribute_btn.addEventListener("click", ()=>{
         let attribute_form = document.createElement("div")
-        attribute_form.classList.add("attribute_form")
+        attribute_form.classList.add("attribute_form", "new")
         attribute_form.innerHTML = attribute_select
         attributes_div.insertBefore(attribute_form, add_attribute_btn)
 

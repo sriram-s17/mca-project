@@ -150,35 +150,72 @@ class AddProduct(View):
                     return render(request, 'add_product.html', context)
 
 class EditProduct(View):
-    attribute_formset = inlineformset_factory(Product, ProductAttribute, form=ProductAttributeForm, extra=0)
+    attribute_formset = modelformset_factory(ProductAttribute, form=ProductAttributeForm, extra=0, can_delete=True)
     def get(self, request, id):
         product = Product.objects.get(product_id=id)
-        attr_forms = []
-        product_attributes = ProductAttribute.objects.filter(product_ref=product)
-
+        product_detail = ProductDetail.objects.filter(product_ref=id, variant_ref=None).first()
+        
         context = {
             'product_form': ProductForm(instance=product),
-            'detail_form': ProductDetailForm2(instance=ProductDetail.objects.filter(product_ref=id, variant_ref=None).first()),
-            'attribute_formset': self.attribute_formset(queryset=product_attributes, instance=product),
-            'attribute_form': ProductAttributeForm
+            'detail_form': ProductDetailForm2(instance=product_detail),
+            'attribute_form': ProductAttributeForm,
+            
         }
+        if product.has_variants:
+            product_attributes = ProductAttribute.objects.filter(product_ref=product)
+            if product_attributes:
+                context.update({
+                    'attribute_formset': self.attribute_formset(queryset=product_attributes),
+                })
+        else:
+            product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
+            print(product_price)
+            context['selling_price_form'] = SellingPriceForm(initial={'selling_price':product_price.selling_price})
+
         status = request.GET.get("status", None)
         if status is not None:
             if status=="success":
                 context["message"] = "Detail saved !"
+        errors = request.GET.get("errors", None)
+        if errors:
+            fields = request.GET["fields"]
+            context['detail_form'] = ProductDetailForm2(instance=product_detail, error_class={fields:errors})
         return render(request, 'edit_product.html', context)
     
     def post(self, request, id):
         product_form_data = ProductForm(request.POST, instance=Product.objects.get(product_id=id))
         if product_form_data.is_valid():
             product = product_form_data.save()
-            if not product.has_variants:
-                
+            if product.has_variants:                
+                #this below is for product already has variants doesn't changed and also for changed 
+                #saves new attributes 
+                attribute_ref_ids = request.POST.getlist("attribute_ref")
+                for attr_id in attribute_ref_ids:
+                    new_product_attribute = ProductAttribute(product_ref_id=product.product_id, attribute_ref_id = attr_id)
+                    new_product_attribute.save()
+
+                #saves modified attributes
+                attr_formset_values = self.attribute_formset(request.POST)
+                if attr_formset_values:
+                    if attr_formset_values.is_valid():
+                        attr_formset_values.save()
+
+                #this portion is for change of product has no variants to have variants
+                #below code delete product detail if the product before has no variant now changed to have variants
+                product_detail = ProductDetail.objects.filter(product_ref=product, variant_ref=None).first()
+                if product_detail:
+                    if product_detail.product_image:
+                        if os.path.exists(product_detail.product_image.path):
+                            os.remove(product_detail.product_image.path)
+                    product_detail.delete()
+                    return redirect('add_variant', product.product_id)
+
+                #just redirects to same page, if the product before has variants doesn't changed
+                return redirect('/products/edit/'+str(id)+'?status=success')
+            else:
                 #if the product before has variants and now changed to 'has no variants', then variant details are deleted
                 variants = ProductVariant.objects.filter(product_ref=id)
                 if variants.count() > 0:
-                    var_attr_values = VariantAttributeValue.objects.filter(variant_ref__in=variants)
-                    var_attr_values.delete()
                     product_details = ProductDetail.objects.filter(variant_ref__in=variants)
                     for detail in product_details:
                         if detail.product_image:
@@ -186,7 +223,10 @@ class EditProduct(View):
                                 os.remove(detail.product_image.path)
                     product_details.delete()
                     variants.delete()
+                product_attributes = ProductAttribute.objects.filter(product_ref=id)
+                product_attributes.delete()
                 
+                #it is for getting product detail if the product before also has no variants
                 product_detail = ProductDetail.objects.filter(product_ref=id).first()
                 
                 #if the product before has image in product detail and now it is removed in form, then the existing file is deleted
@@ -196,23 +236,37 @@ class EditProduct(View):
 
                 # below code saves product detail newly or updating existing
                 detail_form_data = ProductDetailForm2(request.POST, request.FILES, instance=product_detail)
-                detail = detail_form_data.save(commit=False)
-                detail.product_ref = product
-                detail.save()
-                return redirect('/products/edit/'+str(id)+'?status=success')
-            else:
-
-                #below code delete product detail if the product before has no variant now changed to have variants
-                product_detail = ProductDetail.objects.filter(product_ref=id, variant_ref=None).first()
-                if product_detail:
-                    if product_detail.product_image:
-                        if os.path.exists(product_detail.product_image.path):
-                            os.remove(product_detail.product_image.path)
-                    product_detail.delete()
-                    return redirect('add_variant', product.product_id)
-                
-                #just redirects to same page, if the product before has variants doesn't changed
-                return redirect('/products/edit/'+str(id)+'?status=success')
+                if detail_form_data.is_valid():
+                    detail = detail_form_data.save(commit=False)
+                    detail.product_ref = product
+                    detail.save()
+                    selling_price = request.POST.get("selling_price", None)
+                    if selling_price:
+                        create_price = True
+                        old_price = ProductPrice.objects.filter(product_detail_ref=detail).order_by('updated_date').last() 
+                        if old_price :
+                            print("has old price")
+                            if old_price.selling_price == float(selling_price):
+                                print("equal")
+                                create_price=False
+                            if old_price.cost_price==0:
+                                create_price = False
+                                old_price.selling_price = selling_price
+                                old_price.save()
+                        if create_price:
+                            new_price = ProductPrice(product_detail_ref_id=detail.product_detail_id ,selling_price=selling_price, cost_price=old_price.cost_price)
+                            new_price.save()
+                    return redirect('/products/edit/'+str(id)+'?status=success')
+                else:
+                    context = {
+                        'product_form': ProductForm(instance=product),
+                        'detail_form': detail_form_data,
+                        'attribute_form': ProductAttributeForm,
+                    }
+                    product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
+                    print(product_price)
+                    context['selling_price_form'] = SellingPriceForm(initial={'selling_price':product_price.selling_price})
+                    return render(request, 'edit_product.html', context)
 
 class AddVariant(View):
     def get(self, request, id):
@@ -230,6 +284,7 @@ class AddVariant(View):
             'variant_form': VariantForm(initial={'variant_name':'variant'+str(variantcount+1)}),
             'detail_form': ProductDetailForm,
             'attr_value_forms':attr_value_forms,
+            'selling_price_form':SellingPriceForm,
             'product': product
         }
         
@@ -259,15 +314,27 @@ class AddVariant(View):
         return redirect("/products/"+ str(id)+ "/variant/add?status=success")
 
 class EditVariant(View):
-    VarAttrValueFormset = inlineformset_factory(ProductVariant, VariantAttributeValue, form=VarAttrValueForm, extra=1)
+    VarAttrValueFormset = modelformset_factory(VariantAttributeValue, form=VarAttrValueForm, extra=0)
     def get(self, request, id):
         variant = ProductVariant.objects.get(variant_id=id)
+        product_detail = ProductDetail.objects.filter(variant_ref=id).first()
+        product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last()
+        # attr_value_forms = []
+        # product_attributes = ProductAttribute.objects.filter(product_ref=variant.product_ref)
+        var_attr_values = VariantAttributeValue.objects.filter(variant_ref=variant)
+        # if product_attributes:
+        #     for attr in product_attributes:
+        #         attr_value_forms.append(VarAttrValueForm(
+        #                                                 auto_id="id_%s_"+str(attr.product_attr_id),
+        #                                                 instance=var_attr_values.get(product_attr_ref=attr.product_attr_id)
+        #                                                 ))
         context = {
             'variant': variant,
             'variant_form': VariantForm(instance=variant),
-            'detail_form': ProductDetailForm2(instance=ProductDetail.objects.filter(variant_ref=id).first()),
-            'attr_value_formset': self.VarAttrValueFormset(queryset=VariantAttributeValue.objects.filter(variant_ref=id), instance=variant),
-            'attr_value_form': VarAttrValueForm
+            'detail_form': ProductDetailForm2(instance=product_detail),
+            'selling_price_form': SellingPriceForm(initial={'selling_price':product_price.selling_price}),
+            'attr_value_formset': self.VarAttrValueFormset(queryset=var_attr_values),
+            # 'attr_value_forms': attr_value_forms
         }
         status = request.GET.get("status", None)
         if status is not None:
@@ -280,19 +347,37 @@ class EditVariant(View):
 
         variant_form_data = VariantForm(request.POST, instance=variant )
 
-        product_detail = ProductDetail.objects.filter(variant_ref=id).first()
+        product_detail = ProductDetail.objects.filter(variant_ref=variant).first()
+        
         #if the variant before has image in product detail and now it is removed in form, then the existing file is deleted
         if request.POST.get("product_image-clear", None):
             if os.path.exists(product_detail.product_image.path):
                 os.remove(product_detail.product_image.path)
 
         product_detail_form_data = ProductDetailForm2(request.POST, request.FILES, instance=product_detail)
-        attr_values_formset_data = self.VarAttrValueFormset(request.POST, instance=variant)
+        attr_values_formset_data = self.VarAttrValueFormset(request.POST)
 
         if variant_form_data.is_valid() and product_detail_form_data.is_valid() and attr_values_formset_data.is_valid():
             variant_form_data.save()
             product_detail_form_data.save()
             attr_values_formset_data.save()
+            selling_price = request.POST.get("selling_price", None)
+            if selling_price:
+                create_price = True
+                old_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
+                if old_price :
+                    print("has old price")
+                    if old_price.selling_price == float(selling_price):
+                        print("equal")
+                        create_price=False
+                    if old_price.cost_price==0:
+                        create_price = False
+                        old_price.selling_price = selling_price
+                        old_price.save()
+                if create_price:
+                    new_price = ProductPrice(product_detail_ref_id=product_detail.product_detail_id ,selling_price=selling_price, cost_price=old_price.cost_price)
+                    new_price.save()
+
         return redirect("/products/variant/edit/"+str(id)+"?status=success")
 
 class DeleteProduct(View):

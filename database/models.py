@@ -83,13 +83,13 @@ class ProductDetail(models.Model):
 class ProductPrice(models.Model):
     product_price_id = models.BigAutoField(primary_key=True)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
-    cost_price = models.IntegerField(default=0)
-    selling_price = models.IntegerField(default=0)
-    updated_date = models.DateTimeField(auto_now_add=True)
+    cost_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
+    selling_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
+    updated_date = models.DateTimeField(auto_now=True)
     class Meta:
         db_table = "product_price"
     def __str__(self):
-        return self.product_detail_ref + " " + self.updated_date
+        return str(self.product_detail_ref) + " "+ str(self.selling_price) + str(self.updated_date)
 
 def get_default_user():
     return User.objects.get(id=1).pk
@@ -137,8 +137,7 @@ class PurchaseHeaderDetail(models.Model):
     purchase_id = models.BigAutoField(primary_key=True)
     supplier_ref = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
     purchased_date = models.DateTimeField(auto_now_add=True)
-    bill_amount = models.IntegerField()
-    total_amount = models.IntegerField()
+    bill_amount = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'purchase_header_detail'
     def __str__(self):
@@ -149,7 +148,7 @@ class PurchaseItem(models.Model):
     purchase_ref = models.ForeignKey(PurchaseHeaderDetail, on_delete = models.CASCADE)
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
     quantity = models.IntegerField()
-    unit_cost_price = models.IntegerField()
+    unit_cost_price = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'purchase_item'
     def __str__(self):
@@ -159,8 +158,8 @@ class PurchasePayment(models.Model):
     purchase_payment_id = models.BigAutoField(primary_key=True)
     purchase_ref = models.ForeignKey(PurchaseHeaderDetail, on_delete=models.CASCADE)
     payment_date = models.DateTimeField(auto_now_add=True)
-    paid_amount = models.IntegerField()
-    balance_amount = models.IntegerField()
+    paid_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    balance_amount = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'purchase_payment'
     def __str__(self):
@@ -176,7 +175,7 @@ class Customer(models.Model):
     phoneno = models.CharField(validators=[phone_regex], max_length=13, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(max_length=100, null=True, blank=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    added_date = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = "customer"
     def __str__(self):
@@ -186,10 +185,9 @@ class SaleHeaderDetail(models.Model):
     sale_id = models.BigAutoField(primary_key=True)
     customer_ref = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     sold_date = models.DateTimeField(auto_now_add=True)
-    bill_amount = models.IntegerField()
-    discount_percent = models.FloatField(default=0, blank=True)
-    discount_amount = models.IntegerField(default=0, blank=True)
-    total_amount = models.IntegerField()
+    bill_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    discount_percent = models.DecimalField(default=0, blank=True, decimal_places=2, max_digits=10)
+    discount_amount = models.DecimalField(default=0, blank=True, decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'sale_header_detail'
     def __str__(self):
@@ -201,7 +199,7 @@ class SaleItem(models.Model):
     product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
     price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
     quantity = models.IntegerField()
-    unit_sell_price = models.IntegerField()
+    unit_sell_price = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'sale_item'
     def __str__(self):
@@ -211,8 +209,8 @@ class SalePayment(models.Model):
     sale_payment_id = models.BigAutoField(primary_key=True)
     sale_ref = models.ForeignKey(SaleHeaderDetail, on_delete=models.CASCADE)
     payment_date = models.DateTimeField(auto_now_add=True)
-    paid_amount = models.IntegerField()
-    balance_amount = models.IntegerField()
+    paid_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    balance_amount = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
         db_table = 'sale_payment'
     def __str__(self):

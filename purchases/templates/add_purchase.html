@@ -49,7 +49,6 @@
         remove_item_btn.setAttribute("class","remove_item_button")
         remove_item_btn.textContent = "Remove Item"
         remove_item_btn.addEventListener("click", ()=>{
-            formNum--
             remove_item_btn.parentElement.remove()
         })
         purchase_item.appendChild(remove_item_btn)

@@ -30,7 +30,7 @@ urlpatterns = [
     path('suppliers/', include('suppliers.urls')),
     path('customers/', include('customers.urls')),
     path('warehouses/', include('warehouses.urls')),
-    # path('purchases/', include('purchases.urls')),
+    path('purchases/', include('purchases.urls')),
     # path('sales/', include('sales.urls')),
     # path('stocks/', include('stocks.urls')),
     # path('sales/report/', include('salesreport.urls'))

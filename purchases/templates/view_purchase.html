@@ -7,16 +7,16 @@
 <h2>Purchase Details</h2>
 <table class="table">
     <tr>
-        <th>Id</th>
-        <td>{{purchase.purchase_id}}</td>
+        <th>Purchase Id</th>
+        <td>{{purchase_ref.purchase_id}}</td>
     </tr>
     <tr>
         <th>Purchased Date</th>
-        <td>{{purchase.purchased_date}}</td>
+        <td>{{purchase_ref.purchased_date}}</td>
     </tr>
     <tr>
         <th>Supplier</th>
-        <td>{{purchase.supplier_ref}}</td>
+        <td>{{purchase_ref.supplier_ref}}</td>
     </tr>
 </table>
 <h3>Products</h3>
@@ -39,9 +39,7 @@
     </tbody>
 </table>
 <div style="text-align: center; font-size: 18px;">
-    <p id="bill_amount"><strong>Bill Amount: </strong><span>{{purchase.bill_amount}}</span></p>
-    <p id="prev_balance"><strong>Previous Balance: </strong><span>{{prev_balance}}</span></p>
-    <p id="total_amount"><strong>Total Amount: </strong><span>{{purchase.total_amount}}</span></p>
+    <p id="bill_amount"><strong>Bill Amount: </strong><span>{{purchase_ref.bill_amount}}</span></p>
 </div>
 <h3>Purchase Payments</h3>
 <table class="table">
@@ -66,13 +64,11 @@
         {% endif %}
     </tbody>
 </table>
-{% if last_pur_from_supplier and balance_amount > 0 %}
-<div>
-    <p>Balance Amount to Pay: {{balance_amount}}</p>
-    <p><a href="{% url 'add_payment' purchase.purchase_id %}"><button>Add Payment</button></a></p>
-</div>
-{% else %}
-<p>This purchase balance is added to next purchase from this supplier</p>
+{% if balance_amount > 0 %}
+    <div>
+        <p>Balance Amount to Pay: {{balance_amount}}</p>
+        <p><a href="{% url 'add_payment' purchase_ref.purchase_id %}"><button>Add Payment</button></a></p>
+    </div>
 {% endif %}
 <script>
     quantities = document.querySelectorAll(".quantity")

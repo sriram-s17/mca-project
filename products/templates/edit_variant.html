@@ -10,63 +10,20 @@
 <a href="/products/"><button>Back to Products</button></a>
 
 {% if message %}
-<p>{{message}}</p>
+<p class="success-message">{{message}}</p>
 {% endif %}
 
 <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{variant_form}}
     {{detail_form}}
-    <h3>Select Attributes</h3>
+    {{selling_price_form}}
     {{attr_value_formset.management_form}}
-    <div id="select_attribute_div">
-        {% for form in  attr_value_formset%}
-            {% if not forloop.last %}
-            <div>
-                {{form}}
-            </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-    <button id="add_attribute" type="button">Add Attribute</button>
+    {% for form in attr_value_formset%}
+        {{form}}
+    {% endfor %}
     <button type="submit">Save</button>
 </form>
 <script>
-    let totalFormsInput = document.querySelector("#id_variantattributevalue_set-TOTAL_FORMS")
-
-    const selectAttrDiv = document.querySelector("#select_attribute_div")
-    let attributeForms = document.querySelectorAll("#select_attribute_div>div")
-    const addAttrButton = document.querySelector("#add_attribute")
-    
-    let formNum = attributeForms.length-1
-    
-    addAttrButton.addEventListener('click', (e)=>{
-        let emptyAttributeForm = `{{attr_value_formset|last}}`
-        let newAttributeForm = document.createElement("div")
-        let formRegex = RegExp(`variantattributevalue_set-(\\d){1}-`, 'g')
-        formNum++
-        newAttributeForm.innerHTML = emptyAttributeForm.replace(formRegex, `variantattributevalue_set-${formNum}-`)
-        // newAttributeForm.querySelector(`label[for='id_form-${formNum}-DELETE']`).parentElement.remove()
-         newAttributeForm.querySelectorAll(`label[for='id_variantattributevalue_set-${formNum}-DELETE'], input[id='id_variantattributevalue_set-${formNum}-DELETE']`).forEach((element)=>{
-            element.remove()
-        })
-
-        let removeAttrButton = document.createElement("button")
-        removeAttrButton.setAttribute("type","button")
-        removeAttrButton.setAttribute("class","removeattribute")
-        removeAttrButton.setAttribute("onclick","remove_attribute(this)")
-        removeAttrButton.textContent = "Remove attribute"
-        newAttributeForm.append(removeAttrButton)
-
-        selectAttrDiv.appendChild(newAttributeForm)
-
-        totalFormsInput.setAttribute('value', formNum+1)
-    })
-
-    function remove_attribute(button){
-        button.parentElement.remove()
-        formNum--
-        totalFormsInput.setAttribute('value', formNum+1)
-    }
 </script>
 {% endblock %}

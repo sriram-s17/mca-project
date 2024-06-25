@@ -15,10 +15,7 @@
     {% csrf_token %}
     {{variant_form}}
     {{detail_form}}
-    <div>
-        <label for="id_selling_price">Selling Price:</label>
-        <input type="number" min="0" name="selling_price" id="id_selling_price">
-    </div>
+    {{selling_price_form}}
     {% for form in attr_value_forms %}
         {{form}}
     {% endfor %}

@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'suppliers',
     'customers',
     'warehouses',
-    # 'purchases',
+    'purchases',
     # 'sales',
     # 'stocks',
     # 'salesreport',
