@@ -4,6 +4,7 @@
 
 {% block content %}
 <h2>Transfer Stocks</h2>
+<a href="/stocks/"><button>Back to Stocks</button></a>
 <form action="" method="POST">
     {%csrf_token%}
     {{product_select_form}}
@@ -25,7 +26,7 @@
     <button id="transfer_button" disabled>Transfer</button>
 </form>
 <script>
-    let pdid = document.querySelector("select[name='product_detail_ref']")
+    let ppid = document.querySelector("select[name='product_with_price_ref']")
     let from_warehouse = document.querySelector("[name='from_warehouse_ref']")
     let quantity = document.querySelector("[name='quantity']")
     let available_stock = document.querySelector("#available_stock")
@@ -35,15 +36,15 @@
     let same_warehouse_error= document.querySelector("#same_warehouse_error")
     
     //initially calls the get_stock_data function if the value is already selected
-    if (pdid.value != ""){
+    if (ppid.value != ""){
         get_stock_data()
     }
     
     //adding change event listener to the product selection input
-    pdid.addEventListener("change",get_stock_data)
+    ppid.addEventListener("change",get_stock_data)
     function get_stock_data(){
         from_warehouse.innerHTML = "<option>--------</option>"
-        fetch("/stocks/products/warehouseandquantity?pdid="+pdid.value)
+        fetch("/stocks/products/warehouseandquantity?ppid="+ppid.value)
         .then(response=>{
             if(!response.ok){
                 throw new Error("HTTP error:",response.status)
@@ -55,12 +56,15 @@
             console.log(error)
         })
         .then(data=>{
-            generateoptions(data)
+            if( data != '0'){
+                generateoptions(data)
+            }
+            else{
+                alert("there is no stock of this product")
+            }
         })
 
     }
-
-    let urlParams = new URLSearchParams(window.location.search)
 
     //create options dynamically from the fetched stock data
     let stock_data
@@ -75,8 +79,9 @@
         }
 
         //to select warehouse automatically from url
-        // if(urlParams.has("pdid")&&urlParams.has("wid")){
-        //     if(urlParams.get("pdid")==pdid.value){
+        // let urlParams = new URLSearchParams(window.location.search)
+        // if(urlParams.has("ppid")&&urlParams.has("wid")){
+        //     if(urlParams.get("ppid")==ppid.value){
         //         from_warehouse.options[urlParams.get("wid")].selected = "selected"
         //     }
         // }
@@ -84,7 +89,7 @@
     }
 
     //adding change event listener to both the warehouse selection input
-    let transfer_warehouses = [from_warehouse, to_warehouse]
+    let transfer_warehouses = [ppid, from_warehouse, to_warehouse]
     transfer_warehouses.forEach((warehouse)=>{
         warehouse.addEventListener("change",()=>{
             //dont allow to submit if both warehouse are same

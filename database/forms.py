@@ -1,3 +1,4 @@
+from typing import Any
 from django import forms
 from .models import *
    
@@ -37,8 +38,35 @@ class ProductDetailForm2(RequiredModelForm):
         model = ProductDetail
         fields = ['product_code', 'product_image', 'low_stock_threshold', 'is_active']
 
-class SellingPriceForm(forms.Form):
-    selling_price = forms.FloatField(min_value=0, required=False)
+class SellingPriceForm(RequiredModelForm):
+    class Meta:
+        model = ProductPrice
+        fields = ['selling_price']
+
+class SellingPriceForm2(RequiredModelForm):
+    class Meta:
+        model = ProductPrice
+        fields = ['selling_price']
+        
+    def __init__(self, *args, **kwargs):
+        super(SellingPriceForm2, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            stockcount = StockDetail.objects.filter(product_with_price_ref=self.instance).first().quantity
+            self.fields['selling_price'].label = f"Selling Price of Product having cost Rs.{self.instance.cost_price}"
+            self.fields['selling_price'].help_text = f"Available stock in this price = {stockcount}"
+
+# class PriceFormset(forms.BaseModelFormSet):
+#      def __init__(self, *args, **kwargs):
+#         super(PriceFormset, self).__init__(*args, **kwargs)
+#         forms = []
+#         for form in self.forms:
+#             # Assuming you have an `is_deletable` field to determine if an item is deletable
+#             stockcount = StockDetail.objects.filter(product_with_price_ref=form.instance).first().quantity
+#             if stockcount>0:
+#                 forms.append(form)
+#         self.forms = forms
+#     def __iter__(self):
+        
 
 class ProductAttributeForm(RequiredModelForm):
     class Meta:
@@ -91,6 +119,15 @@ class PurchaseItemForm(RequiredModelForm):
     class Meta:
         model = PurchaseItem
         fields = ['product_detail_ref', 'quantity', 'unit_cost_price']
+        labels = {
+            'product_detail_ref': 'Product'
+        }
+        widgets = {
+            "quantity": forms.NumberInput(attrs={"min":"0"})
+        }
+    def __init__(self, *args, **kwargs):
+        super(PurchaseItemForm, self).__init__(*args, **kwargs)
+        self.fields['product_detail_ref'].queryset = ProductDetail.objects.all().order_by("product_ref")
 
 class CustomerForm(RequiredModelForm):
     class Meta:
@@ -100,46 +137,64 @@ class CustomerForm(RequiredModelForm):
             "dob" : forms.TextInput(attrs={"placeholder":"dd/mm/yyyy"})
         }
 
-# class SaleHeaderForm(RequiredModelForm):
-#     class Meta:
-#         model = SaleHeaderDetail
-#         fields = ['customer_ref','discount_percent', 'discount_amount']
+class SaleHeaderForm(RequiredModelForm):
+    class Meta:
+        model = SaleHeaderDetail
+        fields = ['customer_ref','discount_percent', 'discount_amount']
 
-# class SaleItemForm(RequiredModelForm):
-#     class Meta:
-#         model = SaleItem
-#         fields = ['product_detail_ref','quantity','unit_sell_price']
+class SaleItemForm(RequiredModelForm):
+    class Meta:
+        model = SaleItem
+        fields = ['product_with_price_ref','quantity','unit_sell_price']
+        labels = {
+            'product_with_price_ref': 'Product'
+        }
+        widgets = {
+            "quantity": forms.NumberInput(attrs={"min":"0"})
+        }
+    def __init__(self, *args, **kwargs):
+        super(SaleItemForm, self).__init__(*args, **kwargs)
+        stocked_product_price_ids = StockDetail.objects.filter(quantity__gt=0).values_list("product_with_price_ref").distinct()
+        product_price_ids = [id[0] for id in stocked_product_price_ids]
+        self.fields['product_with_price_ref'].queryset = ProductPrice.objects.filter(product_price_id__in=list(product_price_ids)).order_by("product_detail_ref")
 
 class WarehouseForm(RequiredModelForm):
     class Meta:
         model = Warehouse
         fields = '__all__'
 
-# class StockDetailForm(RequiredModelForm):
-#     class Meta:
-#         model = StockDetail
-#         fields = ['warehouse_ref','product_detail_ref','quantity']
-#         labels = {
-#             'warehouse_ref': 'Choose Warehouse',
-#             'product_detail_ref': 'Choose Product',
-#             'quantity': 'Add or Minus Quantity'
-#         }
+class StockDetailForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ['warehouse_ref','product_with_price_ref','quantity', "status"]
+        labels = {
+            'warehouse_ref': 'Choose Warehouse',
+            'product_with_price_ref': 'Choose Product',
+            "quantity":"Available Quantity",
+            'status': 'Stock Condition'
+        }
+        widgets = {
+            'quantity': forms.NumberInput(attrs={"min":"0", "readonly":"true"})
+        }
+    def __init__(self, *args, **kwargs):
+        super(StockDetailForm, self).__init__(*args, **kwargs)
+        # self.fields["product_with_price_ref"].queryset = ProductPrice.objects.all().order_by("product_detail_ref")
 
-# class ProductSelectForm(RequiredModelForm):
-#     class Meta:
-#         model = StockDetail
-#         fields = ["product_detail_ref"]
-#         labels = {
-#             'product_detail_ref':'Choose Product'
-#         }
+class ProductSelectForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ["product_with_price_ref"]
+        labels = {
+            'product_with_price_ref':'Choose Product'
+        }
 
-# class TransferStockForm(RequiredModelForm):
-#     class Meta:
-#         model = StockDetail
-#         fields = ["warehouse_ref", "quantity"]
-#         labels = {
-#             'warehouse_ref': "To warehouse",
-#         }
-#         widgets = {
-#             "quantity": forms.NumberInput(attrs={"min":"0"})
-#         }
+class TransferStockForm(RequiredModelForm):
+    class Meta:
+        model = StockDetail
+        fields = ["warehouse_ref", "quantity"]
+        labels = {
+            'warehouse_ref': "To warehouse",
+        }
+        widgets = {
+            "quantity": forms.NumberInput(attrs={"min":"0"})
+        }

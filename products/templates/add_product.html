@@ -39,11 +39,13 @@
         if(has_variants_input.checked){
             productdetailform.style.display="none";
             attributes_div.style.display = "block";
+            document.querySelector("[name='selling_price']").disabled = true
             add_button.textContent = "Save and Continue add variant";
         }
         else{
             productdetailform.style.display="block"
             attributes_div.style.display = "none";
+            document.querySelector("[name='selling_price']").disabled = false
             attributes_div.querySelectorAll(".attribute_form").forEach((element)=>{
                 element.remove()
             })

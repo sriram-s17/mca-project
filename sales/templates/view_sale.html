@@ -8,15 +8,15 @@
 <table class="table">
     <tr>
         <th>Id</th>
-        <td>{{sale.sale_id}}</td>
+        <td>{{sale_ref.sale_id}}</td>
     </tr>
     <tr>
         <th>saled Date</th>
-        <td>{{sale.sold_date}}</td>
+        <td>{{sale_ref.sold_date}}</td>
     </tr>
     <tr>
         <th>Customer</th>
-        <td>{{sale.customer_ref}}</td>
+        <td>{{sale_ref.customer_ref}}</td>
     </tr>
 </table>
 <h3>Products</h3>
@@ -30,7 +30,7 @@
     <tbody>
         {% for product in sale_items %}
         <tr>
-            <td>{{product.product_detail_ref}}</td>
+            <td>{{product.product_with_price_ref}}</td>
             <td class="quantity">{{product.quantity}}</td>
             <td class="unit_sell_price">{{product.unit_sell_price}}</td>
             <td class="total"></td>
@@ -38,13 +38,10 @@
         {% endfor %}
     </tbody>
 </table>
-<p id="bill_amount"><span>Product Bill Amount: </span><span>{{sale.bill_amount}}</span></p>
-{% if prev_balance != 0 %}
-<p id="prev_balance"><span>Previous Balance: </span><span>{{prev_balance}}</span></p>
-{% endif %}
-<p id="discount_percent"><span>Discount Percent: </span><span>{{sale.discount_percent}}</span></p>
-<p id="discount_amount"><span>Discount Amount: </span><span>{{sale.discount_amount}}</span></p>
-<p id="total_amount"><span>Total Amount: </span><span>{{sale.total_amount}}</span></p>
+<p id="bill_amount"><span>Product Bill Amount: </span><span>{{sale_ref.bill_amount}}</span></p>
+<p id="discount_percent"><span>Discount Percent: </span><span>{{sale_ref.discount_percent}}</span></p>
+<p id="discount_amount"><span>Discount Amount: </span><span>{{sale_ref.discount_amount}}</span></p>
+<p id="total_amount"><span>Total Amount: </span><span>{{total_amount}}</span></p>
 <h3>sale Payments</h3>
 <table class="table">
     <thead>
@@ -68,15 +65,13 @@
         {% endif %}
     </tbody>
 </table>
-{% if last_sale_to_customer and balance_amount > 0 %}
-<div>
-    <p>Balance Amount to Pay: {{balance_amount}}</p>
-    <p><a href="{% url 'add_sale_payment' sale.sale_id %}"><button>Add Payment</button></a></p>
-</div>
-{% elif last_sale_to_customer and balance_amount == 0 %}
-<p style="text-align: center; font-size: 16px;">Full amount paid</p>
-{% else %}
-<p>This sale balance is added to next sale from this supplier</p>
+{% if balance_amount > 0 %}
+    <div>
+        <p>Balance Amount to Pay: {{balance_amount}}</p>
+        <p><a href="{% url 'add_sale_payment' sale_ref.sale_id %}"><button>Add Payment</button></a></p>
+    </div>
+{% elif balance_amount == 0 %}
+    <p style="text-align: center; font-size: 16px;">Full amount paid</p>
 {% endif %}
 <script>
     quantities = document.querySelectorAll(".quantity")

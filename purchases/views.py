@@ -4,7 +4,9 @@ from database.forms import *
 
 def get_purchase_detail(purchase, get_payments=True, get_items=True):
     context = {
-        "purchase_ref":purchase
+        "purchase_ref":purchase,
+        "paid_amount": 0,
+        "balance_amount": purchase.bill_amount
     }
     if get_items:
         purchased_items = PurchaseItem.objects.filter(purchase_ref = purchase)
@@ -18,8 +20,6 @@ def get_purchase_detail(purchase, get_payments=True, get_items=True):
             pamount += payment.paid_amount
         context["paid_amount"] = pamount
         context["balance_amount"] = purchase_payments.last().balance_amount
-    else:
-        context["balance_amount"] = purchase.bill_amount
 
     return context
 
@@ -69,30 +69,43 @@ class AddPurchase(View):
 
             #updating product price
             if cost_price_data[i]:
-                create_price = True
-                old_price = ProductPrice.objects.filter(product_detail_ref=prod_detail_ref_data[i]).order_by('updated_date').last() 
-                if old_price :
-                    if old_price.cost_price == float(cost_price_data[i]):
-                        create_price=False
-                    if old_price.cost_price==0:
-                        create_price = False
-                        old_price.cost_price = cost_price_data[i]
-                        old_price.save()
-                    price_ref = old_price
-                if create_price:
-                    new_price = ProductPrice(product_detail_ref_id=prod_detail_ref_data[i] ,cost_price=cost_price_data[i], selling_price=old_price.selling_price)
+                old_prices = ProductPrice.objects.filter(product_detail_ref=prod_detail_ref_data[i])
+                if old_prices :
+                    same_price = old_prices.filter( cost_price=cost_price_data[i]).first()
+                    #checks if the product already has the same cost price
+                    if  same_price:
+                        price_ref = same_price
+                    else:
+                        has_cost_zero = old_prices.filter(cost_price=0).first()
+                        #checks if the product's price record has cost price 0, 
+                        #bcoz when we create product and add it first time in purchase, the cost price is zero
+                        if has_cost_zero:
+                            has_cost_zero.cost_price = cost_price_data[i]
+                            has_cost_zero.save()
+                            price_ref = has_cost_zero
+                        else:
+                            #if the product has no same price and also has no 0 cost price, then it can be a new price, so we need to add a new record, with the same last selling price
+                            last_price = old_prices.order_by("updated_date").last()
+                            new_price = ProductPrice(product_detail_ref_id=prod_detail_ref_data[i] ,cost_price=cost_price_data[i], selling_price=last_price.selling_price)
+                            new_price.save()
+                            price_ref = new_price
+                else:
+                    #add new price record, when the product has no price record, but it is not possible bcoz we already required selling price when we add product
+                    #but for emergency, it is used
+                    new_price = ProductPrice(product_detail_ref_id=prod_detail_ref_data[i] ,cost_price=cost_price_data[i])
                     new_price.save()
                     price_ref = new_price
+                    
 
             #updating stock
-            product_stock =  StockDetail.objects.filter(product_detail_ref=prod_detail_ref_data[i], price_ref=price_ref)
-            if product_stock:
-                product_stock =  product_stock.first()
-                product_stock.quantity += int(quantity_data[i])
-                product_stock.save()
-            else:
-                new_stock = StockDetail(product_detail_ref_id=prod_detail_ref_data[i], price_ref_id=price_ref.product_price_id, quantity=quantity_data[i])
-                new_stock.save()
+            if price_ref:
+                product_stock =  StockDetail.objects.filter(product_with_price_ref=price_ref, warehouse_ref=1).first()
+                if product_stock:
+                    product_stock.quantity += int(quantity_data[i])
+                    product_stock.save()
+                else:
+                    new_stock = StockDetail(product_with_price_ref=price_ref, quantity=quantity_data[i])
+                    new_stock.save()
                     
         return redirect("view_purchase", new_purchase.purchase_id)
 
@@ -119,5 +132,5 @@ class AddPayment(View):
                                       balance_amount = float(balance) - paid_amount)
             new_payment.save()
 
-        return redirect("add_payment", id)
+        return redirect("view_purchase", id)
     

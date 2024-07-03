@@ -30,7 +30,9 @@
     <tbody>
         {% for product in purchased_items %}
         <tr>
-            <td>{{product.product_detail_ref}}</td>
+            <td>
+                {{product.product_detail_ref}}
+            </td>
             <td class="quantity">{{product.quantity}}</td>
             <td class="unit_cost_price">{{product.unit_cost_price}}</td>
             <td class="total"></td>
@@ -69,6 +71,8 @@
         <p>Balance Amount to Pay: {{balance_amount}}</p>
         <p><a href="{% url 'add_payment' purchase_ref.purchase_id %}"><button>Add Payment</button></a></p>
     </div>
+{% elif balance_amount == 0 %}
+    <p style="text-align: center; font-size: 16px;">Full amount paid</p>
 {% endif %}
 <script>
     quantities = document.querySelectorAll(".quantity")

@@ -22,16 +22,13 @@
         <td>{{purchase.purchase_ref.purchased_date}}</td>
         <td>{{purchase.purchase_ref.supplier_ref}}</td>
         <td>{{purchase.purchase_ref.bill_amount}}</td>
-        <td>{% if purchase.paid_amount %}
-                {{purchase.paid_amount}}
-            {% else %}
-                0
-            {% endif %}
-        </td>
+        <td>{{purchase.paid_amount}}</td>
         <td>{{purchase.balance_amount}}</td>
         <td><a href="{% url 'view_purchase' purchase.purchase_ref.purchase_id %}"><button>View</button></a></td>
         {% if purchase.balance_amount > 0 %}
         <td><a href="{% url 'add_payment' purchase.purchase_ref.purchase_id %}"><button>Add Payment</button></a></td>
+        {% else %}
+        <td></td>
         {% endif %}
     </tr>
     {% endfor %}

@@ -4,4 +4,44 @@
 
 {% block content %}
 <h2>Report of Sales</h2>
+<form action="" method="GET">
+    <input type="hidden" name="default" value="last 30 days">
+    <button>last 30 days</button>
+</form>
+<form action="" method="GET">
+    <label for="id_month_year">Month</label>
+    <input type="month" name="month_year" id="id_month_year" required>
+    <button>Get Report</button>
+</form>
+<div id="overall_sold_amount_n_profit" style="font-size: 24px; font-weight: bold;">
+    <p>Total amount of sold items = <span style="font-weight: normal;">{{sold_amount}}</span></p>
+    <p>Profit in {{period}} = <span style="font-weight: normal;">{{profit}}</span></p>
+</div>
+<div id="most_sold_items">
+    <table class="table most_sold_items display" id="myTable" >
+        <thead>
+            <th>product</th>
+            <th>Qty</th>
+            <th>Sold Amount</th>
+            <th>Profit</th>
+            <th>Profit Percentage</th>
+        </thead>
+        <tbody>
+            {% for product, sale_detail in most_sold_items.items %}
+            <tr>
+                <td>{{product}}</td>
+                <td>{{sale_detail.quantity}}</td>
+                <td>{{sale_detail.product_amount}}</td>
+                <td>{{sale_detail.profit}}</td>
+                <td>{{sale_detail.profit_percent}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    let sold_items_table = new DataTable('#myTable', {
+        order:[[3, 'desc']]
+    })
+</script>
 {% endblock %}

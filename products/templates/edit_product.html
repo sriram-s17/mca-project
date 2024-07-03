@@ -20,6 +20,19 @@
     <div id="productdetail" style="display:none;">
         {{detail_form}}
         {{selling_price_form}}
+        {% if price_formset %}
+            {{price_formset.management_form}}
+            <h3>Price Variants</h3>
+            <span>only the price variants with stock quantity greater than zero are shown</span>
+                {% for form in price_formset %}
+                    <div class="price_set">
+                        {{form}}
+                    </div>
+                {% endfor %}
+        {% elif selling_price_form is None %}
+        <h3>Price Variants</h3>
+        <p>There is no stocks in this product, so its price variants are not shown</p>
+        {% endif %}
     </div>
     {{attribute_formset.management_form}}
     <div id="attributes_div" style="display:none;">

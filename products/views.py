@@ -151,6 +151,7 @@ class AddProduct(View):
 
 class EditProduct(View):
     attribute_formset = modelformset_factory(ProductAttribute, form=ProductAttributeForm, extra=0, can_delete=True)
+    price_formset = modelformset_factory(ProductPrice, form=SellingPriceForm2, extra=0)
     def get(self, request, id):
         product = Product.objects.get(product_id=id)
         product_detail = ProductDetail.objects.filter(product_ref=id, variant_ref=None).first()
@@ -159,27 +160,29 @@ class EditProduct(View):
             'product_form': ProductForm(instance=product),
             'detail_form': ProductDetailForm2(instance=product_detail),
             'attribute_form': ProductAttributeForm,
-            
         }
         if product.has_variants:
             product_attributes = ProductAttribute.objects.filter(product_ref=product)
             if product_attributes:
                 context.update({
                     'attribute_formset': self.attribute_formset(queryset=product_attributes),
+                    'selling_price_form': SellingPriceForm
                 })
         else:
-            product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
-            print(product_price)
-            context['selling_price_form'] = SellingPriceForm(initial={'selling_price':product_price.selling_price})
+            product_prices = ProductPrice.objects.filter(product_detail_ref=product_detail)
+            if product_prices.count() ==  1:
+                context['selling_price_form'] = SellingPriceForm(instance=product_prices.first())
+            else:
+                nonzerostockproductsprices = StockDetail.objects.filter(product_with_price_ref__in=product_prices, quantity__gt=0).values_list("product_with_price_ref")
+                if nonzerostockproductsprices:
+                    context['price_formset'] = self.price_formset(queryset=product_prices.filter(product_price_id__in = nonzerostockproductsprices))            
 
         status = request.GET.get("status", None)
         if status is not None:
             if status=="success":
                 context["message"] = "Detail saved !"
-        errors = request.GET.get("errors", None)
-        if errors:
-            fields = request.GET["fields"]
-            context['detail_form'] = ProductDetailForm2(instance=product_detail, error_class={fields:errors})
+            elif status == 'error':
+                context["error"] = request.GET.get('message', None)
         return render(request, 'edit_product.html', context)
     
     def post(self, request, id):
@@ -240,33 +243,24 @@ class EditProduct(View):
                     detail = detail_form_data.save(commit=False)
                     detail.product_ref = product
                     detail.save()
+                    product_prices = ProductPrice.objects.filter(product_detail_ref=detail)
                     selling_price = request.POST.get("selling_price", None)
                     if selling_price:
-                        create_price = True
-                        old_price = ProductPrice.objects.filter(product_detail_ref=detail).order_by('updated_date').last() 
-                        if old_price :
-                            print("has old price")
-                            if old_price.selling_price == float(selling_price):
-                                print("equal")
-                                create_price=False
-                            if old_price.cost_price==0:
-                                create_price = False
-                                old_price.selling_price = selling_price
-                                old_price.save()
-                        if create_price:
-                            new_price = ProductPrice(product_detail_ref_id=detail.product_detail_id ,selling_price=selling_price, cost_price=old_price.cost_price)
+                        if product_prices.count() == 1:
+                            product_price = product_prices.first()
+                            if product_price.selling_price != float(selling_price):
+                                product_price.selling_price = float(selling_price)
+                                product_price.save()
+                        elif product_prices.count() == 0:
+                            new_price = ProductPrice(product_detail_ref_id=detail.product_detail_id ,selling_price=selling_price)
                             new_price.save()
+                    else:
+                        nonzerostockproductsprices = StockDetail.objects.filter(product_with_price_ref__in=product_prices, quantity__gt=0).values_list("product_with_price_ref")
+                        price_formset_data = self.price_formset(request.POST, queryset=product_prices.filter(product_price_id__in = nonzerostockproductsprices))
+                        price_formset_data.save()
                     return redirect('/products/edit/'+str(id)+'?status=success')
                 else:
-                    context = {
-                        'product_form': ProductForm(instance=product),
-                        'detail_form': detail_form_data,
-                        'attribute_form': ProductAttributeForm,
-                    }
-                    product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
-                    print(product_price)
-                    context['selling_price_form'] = SellingPriceForm(initial={'selling_price':product_price.selling_price})
-                    return render(request, 'edit_product.html', context)
+                    return redirect('/products/edit/'+str(id)+'?status=error&message=the product code already exist')
 
 class AddVariant(View):
     def get(self, request, id):
@@ -315,27 +309,26 @@ class AddVariant(View):
 
 class EditVariant(View):
     VarAttrValueFormset = modelformset_factory(VariantAttributeValue, form=VarAttrValueForm, extra=0)
+    price_formset = modelformset_factory(ProductPrice, form=SellingPriceForm2, extra=0)
     def get(self, request, id):
         variant = ProductVariant.objects.get(variant_id=id)
         product_detail = ProductDetail.objects.filter(variant_ref=id).first()
         product_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last()
-        # attr_value_forms = []
-        # product_attributes = ProductAttribute.objects.filter(product_ref=variant.product_ref)
         var_attr_values = VariantAttributeValue.objects.filter(variant_ref=variant)
-        # if product_attributes:
-        #     for attr in product_attributes:
-        #         attr_value_forms.append(VarAttrValueForm(
-        #                                                 auto_id="id_%s_"+str(attr.product_attr_id),
-        #                                                 instance=var_attr_values.get(product_attr_ref=attr.product_attr_id)
-        #                                                 ))
         context = {
             'variant': variant,
             'variant_form': VariantForm(instance=variant),
             'detail_form': ProductDetailForm2(instance=product_detail),
-            'selling_price_form': SellingPriceForm(initial={'selling_price':product_price.selling_price}),
             'attr_value_formset': self.VarAttrValueFormset(queryset=var_attr_values),
-            # 'attr_value_forms': attr_value_forms
         }
+        product_prices = ProductPrice.objects.filter(product_detail_ref=product_detail)
+        if product_prices.count() ==  1:
+            context['selling_price_form'] = SellingPriceForm(instance=product_prices.first())
+        else:
+            nonzerostockproductsprices = StockDetail.objects.filter(product_with_price_ref__in=product_prices, quantity__gt=0).values_list("product_with_price_ref")
+            if nonzerostockproductsprices:
+                context['price_formset'] = self.price_formset(queryset=product_prices.filter(product_price_id__in = nonzerostockproductsprices))            
+
         status = request.GET.get("status", None)
         if status is not None:
             if status=="success":
@@ -344,7 +337,6 @@ class EditVariant(View):
 
     def post(self, request, id):
         variant = ProductVariant.objects.get(variant_id=id)
-
         variant_form_data = VariantForm(request.POST, instance=variant )
 
         product_detail = ProductDetail.objects.filter(variant_ref=variant).first()
@@ -357,26 +349,26 @@ class EditVariant(View):
         product_detail_form_data = ProductDetailForm2(request.POST, request.FILES, instance=product_detail)
         attr_values_formset_data = self.VarAttrValueFormset(request.POST)
 
-        if variant_form_data.is_valid() and product_detail_form_data.is_valid() and attr_values_formset_data.is_valid():
+        if variant_form_data.is_valid() and product_detail_form_data.is_valid():
             variant_form_data.save()
             product_detail_form_data.save()
-            attr_values_formset_data.save()
+            if attr_values_formset_data.is_valid():
+                attr_values_formset_data.save()
+            product_prices = ProductPrice.objects.filter(product_detail_ref=product_detail)
             selling_price = request.POST.get("selling_price", None)
             if selling_price:
-                create_price = True
-                old_price = ProductPrice.objects.filter(product_detail_ref=product_detail).order_by('updated_date').last() 
-                if old_price :
-                    print("has old price")
-                    if old_price.selling_price == float(selling_price):
-                        print("equal")
-                        create_price=False
-                    if old_price.cost_price==0:
-                        create_price = False
-                        old_price.selling_price = selling_price
-                        old_price.save()
-                if create_price:
-                    new_price = ProductPrice(product_detail_ref_id=product_detail.product_detail_id ,selling_price=selling_price, cost_price=old_price.cost_price)
+                if product_prices.count() == 1:
+                    product_price = product_prices.first()
+                    if product_price.selling_price != float(selling_price):
+                        product_price.selling_price = float(selling_price)
+                        product_price.save()
+                elif product_prices.count() == 0:
+                    new_price = ProductPrice(product_detail_ref_id=product_detail.product_detail_id ,selling_price=selling_price)
                     new_price.save()
+            else:
+                nonzerostockproductsprices = StockDetail.objects.filter(product_with_price_ref__in=product_prices, quantity__gt=0).values_list("product_with_price_ref")
+                price_formset_data = self.price_formset(request.POST, queryset=product_prices.filter(product_price_id__in = nonzerostockproductsprices))
+                price_formset_data.save()
 
         return redirect("/products/variant/edit/"+str(id)+"?status=success")
 

@@ -18,19 +18,17 @@
     </thead>
     {% for sale in sales %}
     <tr>
-        <td>{{sale.id}}</td>
-        <td>{{sale.sold_date}}</td>
-        <td>{{sale.customer_ref}}</td>
+        <td>{{sale.sale_ref.sale_id}}</td>
+        <td>{{sale.sale_ref.sold_date}}</td>
+        <td>{{sale.sale_ref.customer_ref}}</td>
         <td>{{sale.total_amount}}</td>
         <td>{{sale.paid_amount}}</td>
-        {% if sale.last_sale_to_customer %}
         <td>{{sale.balance_amount}}</td>
+        <td><a href="{% url 'view_sale' sale.sale_ref.sale_id %}"><button>View</button></a></td>
+        {% if sale.balance_amount > 0 %}
+        <td><a href="{% url 'add_sale_payment' sale.sale_ref.sale_id %}"><button>Add Payment</button></a></td>
         {% else %}
-        <td>added to last sale to this customer</td>
-        {% endif %}
-        <td><a href="{% url 'view_sale' sale.id %}"><button>View</button></a></td>
-        {% if sale.last_sale_to_customer and sale.balance_amount > 0 %}
-        <td><a href="{% url 'add_sale_payment' sale.id %}"><button>Add Payment</button></a></td>
+        <td></td>
         {% endif %}
     </tr>
     {% endfor %}

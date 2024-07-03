@@ -37,7 +37,7 @@ class Product(models.Model):
     class Meta:
         db_table = 'product'
     def __str__(self):
-        return "p:" + str(self.product_name)
+        return str(self.product_name)
 
 class ProductAttribute(models.Model):
     product_attr_id = models.BigAutoField(primary_key=True)
@@ -55,7 +55,7 @@ class ProductVariant(models.Model):
     class Meta:
         db_table = 'product_variant'
     def __str__(self):
-        return " v:" + self.variant_name
+        return str(self.variant_name)
     
 class VariantAttributeValue(models.Model):
     variant_attr_value_id = models.BigAutoField(primary_key=True)
@@ -73,12 +73,13 @@ class ProductDetail(models.Model):
     variant_ref = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True, default=None)
     product_code = models.CharField(max_length=30, unique=True, null=True, blank=True)
     product_image = models.ImageField(upload_to="product_images", null=True, blank=True, default=None)
-    low_stock_threshold = models.IntegerField(default=10)
+    low_stock_threshold = models.IntegerField(default=5)
     is_active = models.BooleanField(default=True)
     class Meta:
         db_table = 'product_detail'
+        ordering = ['product_ref']
     def __str__(self):
-        return self.product_code + " "+ str(self.product_ref) +" " + str(self.variant_ref)
+        return self.product_code + " "+ str(self.product_ref) +" " + (str(self.variant_ref) if self.variant_ref else "")
 
 class ProductPrice(models.Model):
     product_price_id = models.BigAutoField(primary_key=True)
@@ -88,8 +89,9 @@ class ProductPrice(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     class Meta:
         db_table = "product_price"
+        ordering = ['product_detail_ref']
     def __str__(self):
-        return str(self.product_detail_ref) + " "+ str(self.selling_price) + str(self.updated_date)
+        return str(self.product_detail_ref) + " cost:" + str(self.cost_price)
 
 def get_default_user():
     return User.objects.get(id=1).pk
@@ -111,14 +113,14 @@ def get_warehouse_default():
 class StockDetail(models.Model):
     stock_id = models.BigAutoField(primary_key=True)
     warehouse_ref = models.ForeignKey(Warehouse, on_delete=models.SET_DEFAULT, default=get_warehouse_default)
-    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
-    price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
+    product_with_price_ref = models.ForeignKey(ProductPrice, on_delete = models.CASCADE)
     quantity = models.IntegerField()
+    status = models.CharField(max_length=20, choices=(("good", "Good"), ("missed", "Missed"), ("damaged","Damaged")), default="good")
     updated_date = models.DateTimeField(auto_now=True)
     class Meta:
         db_table = "stock_detail"
     def __str__(self):
-        return str(self.product_detail_ref) + " " + str(self.quantity)
+        return str(self.product_with_price_ref) + " " + str(self.quantity)
 
 class Supplier(models.Model):
     supplier_id = models.BigAutoField(primary_key=True)
@@ -146,7 +148,7 @@ class PurchaseHeaderDetail(models.Model):
 class PurchaseItem(models.Model):
     purchase_item_id = models.BigAutoField(primary_key=True)
     purchase_ref = models.ForeignKey(PurchaseHeaderDetail, on_delete = models.CASCADE)
-    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
+    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.SET_NULL, null=True)
     quantity = models.IntegerField()
     unit_cost_price = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:
@@ -175,6 +177,7 @@ class Customer(models.Model):
     phoneno = models.CharField(validators=[phone_regex], max_length=13, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(max_length=100, null=True, blank=True)
+    profession = models.CharField(max_length=100, null=True, blank=True)
     added_date = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = "customer"
@@ -196,8 +199,7 @@ class SaleHeaderDetail(models.Model):
 class SaleItem(models.Model):
     sale_item_id = models.BigAutoField(primary_key=True)
     sale_ref = models.ForeignKey(SaleHeaderDetail, on_delete = models.CASCADE)
-    product_detail_ref = models.ForeignKey(ProductDetail, on_delete = models.CASCADE)
-    price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
+    product_with_price_ref = models.ForeignKey(ProductPrice, on_delete = models.SET_NULL, null=True)
     quantity = models.IntegerField()
     unit_sell_price = models.DecimalField(decimal_places=2, max_digits=10)
     class Meta:

@@ -13,9 +13,24 @@
         {{sale_header_form.customer_ref}}
         <a href="/customers/add?next=add_sale"><button type="button">Add new Customer</button></a>
     </div>
-    <div id="sale_items_block">
-        
-    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Sell Price</th>
+                <th>Total Product amount</th>
+            </tr>
+        </thead>
+        <tbody id="sale_items_block">
+            <tr class="sale_item">
+                <td>{{sale_item_form.product_with_price_ref}}<br><span id="available_stock"></span></td>
+                <td>{{sale_item_form.quantity}}</td>
+                <td>{{sale_item_form.unit_sell_price}}</td>
+                <td><input type="number" name="product_amount" id="id_product_amount" readonly></td>
+            </tr>
+        </tbody>
+    </table>
     <button type="button" id="add_item_button">Add Item</button>
     <div>
         <label for="id_bill_amount">Bill Amount</label>
@@ -36,7 +51,8 @@
     <button type="submit">Add Sale</button>
 </form>
 <script>
-    let product_details = JSON.parse("{{product_details|escapejs}}")
+    let product_prices = JSON.parse("{{product_prices|escapejs}}")
+
     let bill_amount = document.querySelector("input[name='bill_amount']")
     let total_amount = document.querySelector("input[name='total_amount']")
     let discount_amount =  document.querySelector("#id_discount_amount")
@@ -49,34 +65,80 @@
     })
 
     let items_block = document.querySelector("#sale_items_block")    
-    let sale_item_form = `
-        {{sale_item_form}}
-        <div>
-            <label for="id_product_amount">bill product amount</label>
-            <input type="number" name="product_amount" id="id_product_amount" readonly>
-        </div>
-        <button type="button" class="remove_item_button">Remove Item</button>`
-    let formNum = 0
+    let sale_item = items_block.childNodes[1]
+    sale_item.innerHTML = sale_item.innerHTML.replace(RegExp("id_", 'g'), `id_form-0_`)
+    add_events(sale_item)
+
+    let formNum = items_block.children.length - 1
     // initially add one sale item form
-    add_sale_item()
 
     document.querySelector("#add_item_button").addEventListener("click", ()=>{
         add_sale_item()
     })
 
+    //add sale item function
     function add_sale_item(){
-        let sale_item = document.createElement("div")
-        sale_item.classList.add("sale_item")
-        sale_item.innerHTML = sale_item_form.replace(RegExp("id_", 'g'), `id_form-${formNum}_`)
+        let sale_item = items_block.childNodes[1].cloneNode(true)
+        sale_item.querySelector("#available_stock").textContent = ""
+        sale_item.querySelector("[name='quantity']").removeAttribute("max")
         formNum++
+        sale_item.innerHTML = sale_item.innerHTML.replace(RegExp("id_form-(\\d){1}", 'g'), `id_form-${formNum}`)
+        
+        let remove_item_btn = document.createElement("button")
+        remove_item_btn.setAttribute("type","button")
+        remove_item_btn.setAttribute("class","remove_item_button")
+        remove_item_btn.textContent = "X"
+        remove_item_btn.addEventListener("click", (e)=>{
+            remove_item_btn.parentElement.parentElement.remove()
+            calcproductprice(e)
+        })
+        sale_item.lastElementChild.appendChild(remove_item_btn)
+        add_events(sale_item)
         items_block.appendChild(sale_item)
+    }
 
-        sale_item.querySelector(".remove_item_button").addEventListener("click", (e)=>{
-            e.target.parentElement.remove()
-        })
+    //add event for the sale item function
+    function add_events(sale_item){
         sale_item.querySelector("select").addEventListener("change", (e)=>{
-            sale_item.querySelector("input[name='unit_sell_price']").value = product_details[e.target.value]
+            quantity_input = sale_item.querySelector("input[name='quantity']")
+            available_stock_span = sale_item.querySelector("#available_stock")
+            unit_sell_price = sale_item.querySelector("input[name='unit_sell_price']")
+            if(e.target.value != ""){
+                // product_item = product_prices.find((item)=> item[e.target.value] != null)[e.target.value]
+                // unit_sell_price.value = product_item["selling_price"]
+                // available_stock_span.textContent = `Available stock of this product in shop : ${product_item["quantity"]}`
+                // quantity.setAttribute("max", data)
+                // if(quantity.value > data){
+                //     quantity.value = data
+                // }
+                unit_sell_price.value = product_prices.find((item)=> item[e.target.value] != null)[e.target.value]
+                fetch(`/stocks/products/quantity?ppid=${e.target.value}`)
+                .then(response=>{
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status}`);
+                    }
+                    return response.json()
+                })
+                .then(data=>{
+                    available_stock_span.textContent = `Available stock of this product in shop : ${data}`
+                    quantity_input.setAttribute("max", data)
+                    if(quantity_input.value > data){
+                        quantity_input.value = data
+                    }
+                    
+                })
+                .catch(error=>{
+                    document.querySelector("#available_stock span").textContent = "unable to fetch"
+                    console.log(error)
+                })
+            }
+            else{
+                unit_sell_price.value = ""
+                available_stock_span.textContent = ""
+                quantity_input.removeAttribute("max")
+            }
         })
+
         sale_item.querySelectorAll("input[name='quantity'], input[name='unit_sell_price'], select").forEach((element)=>{
             element.addEventListener("change", (e)=>{
                 calcproductprice(e)
@@ -84,6 +146,7 @@
         })
     }
 
+    //calculate total product price function
     function calcproductprice(e){
         sale_item = e.target.closest('.sale_item')
         quantity = sale_item.querySelector("input[name='quantity']")
@@ -95,6 +158,7 @@
         }
     }
 
+    //calculate total bill price function
     function calcbillprice(){
         let sale_items = document.querySelectorAll('.sale_item')
         let amount = 0
@@ -120,6 +184,7 @@
         })
     }
 
+    //calculate discount amount function
     function calcdiscount(element){
         if(bill_amount.value != "" && bill_amount.value != 0){
             if(element==discount_amount){

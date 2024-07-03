@@ -25,15 +25,7 @@
 </table>
 
 <p style="text-align: center;">
-    <p><strong>Paid Amount:</strong>
-        <span>
-            {% if paid_amount %}
-                {{paid_amount}}
-            {% else %}
-                0
-            {% endif %}
-        </span>
-    </p>
+    <p><strong>Paid Amount:</strong><span>{{paid_amount}}</span></p>
     <p style="font-size: 25px;"><strong>balance Amount to Pay: </strong><span>{{balance_amount}}</span></p>
 </p>
 
@@ -41,14 +33,13 @@
     {% csrf_token %}
     <div>
         <label for="id_paid_amount">Enter the Amount you Paid: </label>
-        <input type="number" name="paid_amount" id="id_paid_amount" 
         {% if balance_amount > 0 %}
-            required max={{balance_amount}}
+            <input type="number" name="paid_amount" id="id_paid_amount" required max={{balance_amount}} >
+            <button type="submit">Add Paid amount</button>
         {% else %}
-            disabled   
+            <input type="number" name="paid_amount" id="id_paid_amount" required max={{balance_amount}} disabled>
+            <button type="submit" disabled>Add Paid amount</button>
         {% endif %}
-        >
     </div>
-    <button type="submit">Add Paid amount</button>
 </form>
 {% endblock %}

@@ -1,7 +1,31 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.views import View
 from database.forms import *
 from json import dumps
+
+def get_sale_detail(sale, get_payments=True, get_items=True):
+    context = {
+            "sale_ref":sale,
+            "total_amount":sale.bill_amount - sale.discount_amount,
+            "paid_amount": 0,
+            "balance_amount": sale.bill_amount - sale.discount_amount
+    }
+    if get_items:
+        sale_items = SaleItem.objects.filter(sale_ref = sale)
+        context["sale_items"] = sale_items
+    
+    sale_payments = SalePayment.objects.filter(sale_ref = sale)
+    if sale_payments:
+        if get_payments:
+            context["sale_payments"] = sale_payments
+        pamount = 0
+        for payment in sale_payments:
+            pamount += payment.paid_amount
+        context["paid_amount"] = pamount
+        context["balance_amount"] = sale_payments.last().balance_amount
+    
+    return context
 
 # Create your views here.
 class ViewSales(View):
@@ -9,25 +33,7 @@ class ViewSales(View):
         sales = SaleHeaderDetail.objects.all()
         sales_list = []
         for sale in sales:
-            sales_list.append({"id":sale.sale_id, 
-                                "sold_date":sale.sold_date, 
-                                "customer_ref":sale.customer_ref,
-                                "total_amount": sale.total_amount,
-                                "last_sale_to_customer": False})
-            
-        for sale in sales_list:
-            payments = SalePayment.objects.filter(sale_ref = sale["id"])
-            pamount = 0
-            for payment in payments:
-                pamount += payment.paid_amount
-            sale["paid_amount"] = pamount
-
-            if sales.filter(customer_ref=sale["customer_ref"]).last().sale_id == sale["id"]:
-                sale["last_sale_to_customer"] = True
-                if payments:
-                    sale["balance_amount"] = payments.last().balance_amount
-                else:
-                    sale["balance_amount"] = sale["total_amount"]
+            sales_list.append(get_sale_detail(sale, False, False))
 
         context = {
             "sales":sales_list
@@ -37,121 +43,93 @@ class ViewSales(View):
 
 class ViewSale(View):
     def get(self, request, id):
-        sale = SaleHeaderDetail.objects.get(sale_id = id)
-        sale_items = SaleItem.objects.filter(sale_ref = id)
-        sale_payments = SalePayment.objects.filter(sale_ref = id)
-        context = {
-            "sale":sale,
-            "prev_balance": (sale.total_amount + sale.discount_amount) - sale.bill_amount,
-            "sale_items": sale_items,
-            "last_sale_to_customer": False  #it is used when we view previous sale of a customer.if it is false, then it is not last sale and 
-            # and balance amount is not displayed bcoz their balance amount is added to next sale
-            #so we no need to display their display their balance amount
-        }
-
-        if sale_payments:
-            context["sale_payments"] = sale_payments
-            pamount = 0
-            for payment in sale_payments:
-                pamount += payment.paid_amount
-            context["paid_amount"] = pamount
-            
-        last_sale_id = SaleHeaderDetail.objects.filter(customer_ref=sale.customer_ref).last().sale_id
-        if sale.sale_id == last_sale_id:
-            context["last_sale_to_customer"] = True
-            if sale_payments:
-                context["balance_amount"] = sale_payments.last().balance_amount
-            else:
-                context["balance_amount"] = sale.total_amount
+        sale = SaleHeaderDetail.objects.filter(sale_id = id).first()
+        if sale:
+            context = get_sale_detail(sale)
+        else:
+            return redirect('view_sales')
 
         return render(request, "view_sale.html", context)
 
+def get_stock_detail_with_price():
+    stocked_products = StockDetail.objects.filter(quantity__gt=0, status="good")
+    stocked_product_price_refs = []
+    for stock in stocked_products:
+        stocked_product_price_refs.append({stock.product_with_price_ref_id:float(stock.product_with_price_ref.selling_price)})
+    return stocked_product_price_refs
+
 class AddSale(View):
     def get(self, request):
-        product_details = ProductDetail.objects.all().values_list('product_detail_id', 'selling_price')
         context = {
             'sale_header_form': SaleHeaderForm,
             'sale_item_form': SaleItemForm,
-            'product_details': dumps(dict(product_details))
+            'product_prices': dumps(get_stock_detail_with_price())
         }
         customer = request.GET.get("cid", None)
         if customer:
-            context["sale_header_form"] = SaleHeaderForm(initial={'customer_ref': Customer.objects.get(customer_id=int(customer))})
+            context["sale_header_form"] = SaleHeaderForm(initial={'customer_ref': customer})
         return render(request, 'add_sale.html', context)
 
     def post(self, request):
-        prev_sale = SaleHeaderDetail.objects.filter(customer_ref_id = request.POST["customer_ref"]).last()
-        balance = 0
-        if prev_sale:
-            prev_sale_payment = SalePayment.objects.filter(sale_ref=prev_sale).last()
-            if prev_sale_payment:
-                balance = prev_sale_payment.balance_amount
-            else:
-                balance = prev_sale.total_amount
         
-        prod_detail_ref_data = request.POST.getlist("product_detail_ref")
+        product_price_refs = request.POST.getlist("product_with_price_ref")
         sell_price_data = request.POST.getlist("unit_sell_price")
         quantity_data = request.POST.getlist("quantity")
 
         bill_amount = 0
-        for i in range(len(prod_detail_ref_data)): 
-            bill_amount += int(quantity_data[i])*int(sell_price_data[i])
+        for i in range(len(product_price_refs)): 
+            bill_amount += int(quantity_data[i])*float(sell_price_data[i])
 
         discount_percent = float(request.POST.get("discount_percent", 0))
         discount_amount = int(request.POST.get("discount_amount", 0))
         new_sale = SaleHeaderDetail(customer_ref_id = request.POST["customer_ref"], 
                                     bill_amount = bill_amount, 
                                     discount_percent = discount_percent, 
-                                    discount_amount = discount_amount, 
-                                    total_amount = bill_amount - discount_amount + balance)
+                                    discount_amount = discount_amount)
         new_sale.save()
 
         #saving each sold products items in the database
-        for i in range(len(prod_detail_ref_data)):
+        for i in range(len(product_price_refs)):
             new_sale_item = SaleItem(sale_ref_id = new_sale.sale_id, 
-                                     product_detail_ref_id = prod_detail_ref_data[i], 
+                                     product_with_price_ref_id = product_price_refs[i], 
                                      unit_sell_price = sell_price_data[i],
                                      quantity = quantity_data[i])
             new_sale_item.save()
                 
             #updating stock
-            product_stock =  StockDetail.objects.filter(product_detail_ref = prod_detail_ref_data[i])
+            product_stock =  StockDetail.objects.filter(product_with_price_ref = product_price_refs[i], warehouse_ref_id =1, status="good").first()
             if product_stock:
-                product_stock =  product_stock.first()
-                product_stock.quantity -= int(quantity_data[i])
-                product_stock.save()
+                if product_stock.quantity - int(quantity_data[i]) == 0:
+                    product_stock.delete()
+                else:
+                    product_stock.quantity -= int(quantity_data[i])
+                    product_stock.save()
                     
-        return redirect("add_sale_payment", new_sale.sale_id)
+        return redirect("view_sale", new_sale.sale_id)
 
 class AddPayment(View):
     def get(self, request, id):
-        sale_ref = SaleHeaderDetail.objects.get(sale_id=id)
-        context = {
-            "sale_ref":sale_ref,
-            "prev_balance": (sale_ref.total_amount + sale_ref.discount_amount) - sale_ref.bill_amount,
-            "paid_amount": 0,
-            "balance": sale_ref.total_amount
-        }
+        sale = SaleHeaderDetail.objects.filter(sale_id=id).first()
+        if sale:
+            context = get_sale_detail(sale, False, False)
+        else:
+            return redirect('view_sales')
 
-        sale_payments = SalePayment.objects.filter(sale_ref_id=id)
-        if sale_payments:
-            pamount = 0
-            for sale_payment in sale_payments:
-                pamount += sale_payment.paid_amount
-            context["paid_amount"] = pamount
-            context["balance"] = sale_payments.last().balance_amount
         return render(request, "add_sale_payment.html", context)
     
     def post(self, request, id):
-        sale_ref = SaleHeaderDetail.objects.get(sale_id=id)
-        balance = sale_ref.total_amount
+        paid_amount = float(request.POST["paid_amount"])
         last_payment = SalePayment.objects.filter(sale_ref_id=id).last()
         if last_payment:
             balance = last_payment.balance_amount
-        paid_amount = int(request.POST["paid_amount"])
-        new_payment = SalePayment(sale_ref_id=sale_ref.sale_id, 
-                                      paid_amount= paid_amount,
-                                      balance_amount = balance - paid_amount)
-        new_payment.save()
-        return redirect("view_sale", sale_ref.sale_id)
+        else:
+            sale_ref = SaleHeaderDetail.objects.get(sale_id=id)
+            balance = sale_ref.bill_amount - sale_ref.discount_amount
+
+        if balance > 0:
+            new_payment = SalePayment(sale_ref_id=id, 
+                                        paid_amount= paid_amount,
+                                        balance_amount = float(balance) - paid_amount)
+            new_payment.save()
+        return redirect("view_sale", id)
     
