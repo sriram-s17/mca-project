@@ -2,6 +2,16 @@
 
 {% block title %}Add Sale{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <h2>Add Sale</h2>
 <p><a href="/sales/"><button>Back to Sales</button></a></p>

@@ -2,6 +2,16 @@
 
 {% block title %}Purchase Details{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <a href="/purchases/"><button>Back to Purchases</button></a>
 <h2>Purchase Details</h2>

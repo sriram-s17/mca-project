@@ -1,0 +1,104 @@
+<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+<div class="offcanvas-body">
+  <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+<li class="nav-item">
+    <a class="nav-link" href="/">Home</a>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Suppliers
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/suppliers/add/">Add Supplier</a></li>
+        <li><a class="dropdown-item" href="/suppliers/">View Suppliers</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Products
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/products/add/">Add Product</a></li>
+        <li><a class="dropdown-item" href="/products/">View Products</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Purchases
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/purchases/add/">Add Purchase</a></li>
+        <li><a class="dropdown-item" href="/purchases/">View Purchases</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Warehouses
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/warhouses/add/">Add Warehouse</a></li>
+        <li><a class="dropdown-item" href="/warehouses/">View Warehouses</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Customers
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/customers/add/">Add Customer</a></li>
+        <li><a class="dropdown-item" href="/customers/">View Customers</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Sales
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/sales/add/">Add Sales</a></li>
+        <li><a class="dropdown-item" href="/sales/">View Sales</a></li>
+    </ul>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/sales/report/">Sales Report</a>
+</li>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Stocks
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/stocks/">View Stocks</a></li>
+        <li><a class="dropdown-item" href="/stocks/edit/">Edit Stocks</a></li>
+        <li><a class="dropdown-item" href="/stocks/transfer/">Transfer Stocks</a></li>
+    </ul>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    User
+</a>
+<ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="/user/logout/">logout</a></li>
+    <!-- <li><a class="dropdown-item" href="/user/change_password/owner/">Change Owner Password</a></li> -->
+    {% for user in users %}
+    <li><a class="dropdown-item" href="/user/change_password?username={{user}}">Change {{user}} Password</a></li>
+    {% endfor %}
+    <!-- <li><a class="dropdown-item" href="#">Another action</a></li> -->
+    <!-- <li>
+    <hr class="dropdown-divider">
+    </li> -->
+    <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
+</ul>
+</li>
+</ul>
+<!-- <form class="d-flex mt-3" role="search">
+  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+  <button class="btn btn-outline-success" type="submit">Search</button>
+</form> -->
+</div>
+</div>

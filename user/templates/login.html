@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Login Page{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block custom_head_tag %}
+    <style>
+        body{
+            background-color: orange;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+        
+    <div class="login_div">
+        <h2>Login</h2>
+        <form action="" method="POST">
+            {% if error %}
+            <p class="error">{{error}}</p>
+            {% endif %}
+            {% csrf_token %}
+            <div>
+                <label for="id_username">Enter Username</label><br>
+                <input type="text" name="username" id="id_username" required>
+            </div>
+            <div>
+                <label for="id_password">Enter Password</label><br>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            <button>Login</button>
+        </form>
+    </div>
+
+{% endblock %}

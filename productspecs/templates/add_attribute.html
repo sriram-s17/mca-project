@@ -2,6 +2,16 @@
 
 {% block title %}Add Attributes{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <h1>Add Attribute</h1>
 <a href="/products/attributes/"><button>Back to Attributes</button></a>

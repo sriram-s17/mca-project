@@ -5,6 +5,11 @@ from .models import *
 class RequiredModelForm(forms.ModelForm):
     required_css_class = 'required'
 
+class ChangePwdForm(forms.Form):
+    required_css_class = "required"
+    username = forms.CharField(widget=forms.TextInput())
+    password = forms.CharField(widget=forms.PasswordInput())
+
 class CategoryForm(RequiredModelForm):
     class Meta:
         model = Category
@@ -99,11 +104,6 @@ class VarAttrValueForm(RequiredModelForm):
         super(VarAttrValueForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields['value'].label = f"value of {self.instance.product_attr_ref.attribute_ref}"
-
-# class VarAttrValueForm2(forms.Form):
-#     required_css_class = "required"
-#     product_attr_ref = forms.IntegerField(widget = forms.HiddenInput(attrs={"name":"product_attr_ref"}))
-#     value_of = forms.CharField(label="value of", widget=forms.TextInput(attrs={"name":"value"}))
 
 class SupplierForm(RequiredModelForm):
     class Meta:

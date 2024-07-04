@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
+from django.contrib.auth.decorators import login_required
+from user.views import GroupRequiredMixin
+from django.contrib.auth.models import Group
 
 # Create your views here.
-class ViewWarehouses(View):
+
+class ViewWarehouses(GroupRequiredMixin, View):
+    groups_required = [group[0] for group in Group.objects.all().values_list("name")]
     def get(self, request):
         context = {
             'warehouses': Warehouse.objects.all()

@@ -2,6 +2,16 @@
 {% load custom_tags %}
 {% block title %}Stocks{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <h2>Stocks</h2>
 <a href="/stocks/edit/"><button>Add Stock for products</button></a>

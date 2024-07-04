@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" href="test.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Hardware Shop Management</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Suppliers</a>
+            <a href="#">Products</a>
+            <a href="#">Purchases</a>
+            <a href="#">Warehouses</a>
+            <a href="#">Customers</a>
+            <a href="#">Sales</a>
+            <a href="#">Stocks</a>
+        </nav>
+    </header>
+    <main class="main-content">
+        <section class="products-section">
+            <h2>Products</h2>
+            <div class="button-group">
+                <button class="btn manage-btn">Manage Categories</button>
+                <button class="btn manage-btn">Manage Brands</button>
+                <button class="btn manage-btn">Manage Attributes</button>
+                <button class="btn add-btn">Add Product</button>
+            </div>
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>Product Code</th>
+                        <th>Is Active</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Sickle</td>
+                        <td>Farming Equipment</td>
+                        <td>None</td>
+                        <td>P101</td>
+                        <td>Active</td>
+                        <td><button class="btn edit-btn">Edit</button></td>
+                        <td><button class="btn delete-btn">Delete</button></td>
+                    </tr>
+                    <tr class="product-row">
+                        <td>2</td>
+                        <td>Apcolite Premium Emulsion</td>
+                        <td>Paint</td>
+                        <td>Asian</td>
+                        <td>P201</td>
+                        <td>Active</td>
+                        <td><button class="btn edit-btn">Edit</button></td>
+                        <td><button class="btn delete-btn">Delete</button></td>
+                    </tr>
+                    <tr class="variant-row">
+                        <td colspan="8">
+                            <div class="variant">
+                                <p><strong>Variant 1</strong></p>
+                                <p>Color: Intense Purple</p>
+                                <p>Quantity: 1 ltr</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="variant-row">
+                        <td colspan="8">
+                            <div class="variant">
+                                <p><strong>Variant 2</strong></p>
+                                <p>Color: Intense Purple</p>
+                                <p>Quantity: 4 ltr</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn add-variant-btn">Add Variant</button>
+        </section>
+    </main>
+</body>
+</html>
