@@ -5,8 +5,11 @@ from database.forms import *
 from django.forms import modelformset_factory
 from json import dumps
 import pprint
+from user.views import GroupRequiredMixin
+
 # Create your views here.
-class ViewStocks(View):
+class ViewStocks(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request):
         stock_details = StockDetail.objects.order_by("product_with_price_ref", "warehouse_ref")
         stock_details_dict = {}
@@ -40,7 +43,7 @@ def get_quantity(request):
     else:
         return JsonResponse("",safe=False)
 
-class EditStock(View):
+class EditStock(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'stock_form': StockDetailForm,
@@ -71,7 +74,7 @@ class EditStock(View):
 
         return redirect("view_stocks")
     
-class TransferStock(View):
+class TransferStock(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'product_select_form':ProductSelectForm,

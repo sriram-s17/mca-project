@@ -1,16 +1,19 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
+from user.views import GroupRequiredMixin
 
 # Create your views here.
-class ViewCustomers(View):
+class ViewCustomers(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request):
         context = {
             'customers':Customer.objects.all()
         }
         return render(request, 'customers.html', context)
 
-class AddCustomer(View):
+class AddCustomer(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request):
         return render(request, 'add_customer.html', {'customer_form':CustomerForm})
 
@@ -26,7 +29,8 @@ class AddCustomer(View):
             context = { 'customer_form':customer_form_data }
         return render(request, 'add_customer.html', context)
 
-class EditCustomer(View):
+class EditCustomer(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request, id):
         customer_obj = Customer.objects.get(customer_id=id)
         context = {
@@ -44,7 +48,8 @@ class EditCustomer(View):
             context = { 'customer_form':customer_form_data }
             return render(request, 'edit_customer.html', context)
 
-class DeleteCustomer(View):
+class DeleteCustomer(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(request, id):
         customer_obj = Customer.objects.get(customer_id = id)
         customer_obj.delete()

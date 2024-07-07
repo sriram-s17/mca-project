@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>Home Page</h2>
+<div style="margin:10px;">
+    <a href="/suppliers/add/"><button> + suppliers </button></a>
+</div>
+<div>
+    <h3>Low Stock Products</h3>
+    <table>
+        <thead>
+            <th style="width:200px; overflow: auto;">Product Name</th>
+            <th>Quantity</th>
+            <th style="width:100px; overflow: auto;">Low Stock Threshold</th>
+        </thead>
+        <tbody>
+            {% for product, stock_detail in low_stock_products.items %}
+            <tr>
+                <td>{{product}}</td>
+                <td>{{stock_detail.quantity}}</td>
+                <td>{{stock_detail.low_stock_threshold}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

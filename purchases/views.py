@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
+from user.views import GroupRequiredMixin
 
 def get_purchase_detail(purchase, get_payments=True, get_items=True):
     context = {
@@ -24,7 +25,7 @@ def get_purchase_detail(purchase, get_payments=True, get_items=True):
     return context
 
 # Create your views here.
-class ViewPurchases(View):
+class ViewPurchases(GroupRequiredMixin, View):
     def get(self, request):
         purchases = PurchaseHeaderDetail.objects.all()
         purchases_list = []
@@ -37,7 +38,7 @@ class ViewPurchases(View):
 
         return render(request, 'purchases.html', context)
 
-class ViewPurchaseDetail(View):
+class ViewPurchaseDetail(GroupRequiredMixin, View):
     def get(self, request, id):
         purchase = PurchaseHeaderDetail.objects.filter(purchase_id = id).first()
         if purchase:
@@ -46,7 +47,7 @@ class ViewPurchaseDetail(View):
         else:
             return redirect("view_purchases")
 
-class AddPurchase(View):
+class AddPurchase(GroupRequiredMixin, View):
     def get(self, request):
         return render(request, 'add_purchase.html', {'purchase_header_form': PurchaseHeaderForm, 'purchase_item_form': PurchaseItemForm })
 
@@ -109,7 +110,7 @@ class AddPurchase(View):
                     
         return redirect("view_purchase", new_purchase.purchase_id)
 
-class AddPayment(View):
+class AddPayment(GroupRequiredMixin, View):
     def get(self, request, id):
         purchase = PurchaseHeaderDetail.objects.filter(purchase_id=id).first()
         if purchase:

@@ -1,16 +1,17 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
+from user.views import GroupRequiredMixin
 
 # Create your views here.
-class ViewSuppliers(View):
+class ViewSuppliers(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'suppliers':Supplier.objects.all()
         }
         return render(request, 'suppliers.html', context)
 
-class AddSupplier(View):
+class AddSupplier(GroupRequiredMixin, View):
     def get(self, request):
         return render(request, 'add_supplier.html', {'supplier_form':SupplierForm})
     
@@ -23,7 +24,7 @@ class AddSupplier(View):
             context = { 'supplier_form':supplier_form_data }
         return render(request, 'add_supplier.html', context)
     
-class EditSupplier(View):
+class EditSupplier(GroupRequiredMixin, View):
     def get(self, request, id):
         supplier_obj = Supplier.objects.get(supplier_id=id)
         context = {
@@ -41,7 +42,7 @@ class EditSupplier(View):
             context = { 'supplier_form': supplier_form_data }
             return render(request, 'edit_supplier.html', context)
     
-class DeleteSupplier(View):
+class DeleteSupplier(GroupRequiredMixin, View):
     def get(self, request, id):
         supplier_obj = Supplier.objects.get(supplier_id = id)
         supplier_obj.delete()

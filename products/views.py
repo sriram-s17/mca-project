@@ -4,11 +4,13 @@ from database.forms import *
 import os
 from json import dumps
 from django.forms import inlineformset_factory, modelformset_factory
+from user.views import GroupRequiredMixin
 import pprint
 # Create your views here.
 
 #products views
-class ViewProducts(View):
+class ViewProducts(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request):
         products = Product.objects.all()
         context = {
@@ -70,7 +72,8 @@ def get_product_details(products):
 #         variant.update(attributes)
 #     return variant
 
-class ViewProduct(View):
+class ViewProduct(GroupRequiredMixin, View):
+    groups_required = ['owner', 'salesman']
     def get(self, request, id):
         product = Product.objects.get(product_id=id)
         product_dict = {"product_id":product.product_id, "product_name": product.product_name,
@@ -114,7 +117,7 @@ class ViewProduct(View):
         
         return render(request, "view_product.html", {"product":product_dict})
 
-class AddProduct(View):
+class AddProduct(GroupRequiredMixin, View):
     def get(self, request):
         context = {'product_form': ProductForm, 'detail_form': ProductDetailForm, 'attribute_form':ProductAttributeForm, 'selling_price_form': SellingPriceForm}
         status = request.GET.get("status")
@@ -149,7 +152,7 @@ class AddProduct(View):
                     context = {'product_form': product_form_data, 'detail_form': detail_form_data, 'attribute_form':ProductAttributeForm}
                     return render(request, 'add_product.html', context)
 
-class EditProduct(View):
+class EditProduct(GroupRequiredMixin, View):
     attribute_formset = modelformset_factory(ProductAttribute, form=ProductAttributeForm, extra=0, can_delete=True)
     price_formset = modelformset_factory(ProductPrice, form=SellingPriceForm2, extra=0)
     def get(self, request, id):
@@ -260,9 +263,9 @@ class EditProduct(View):
                         price_formset_data.save()
                     return redirect('/products/edit/'+str(id)+'?status=success')
                 else:
-                    return redirect('/products/edit/'+str(id)+'?status=error&message=the product code already exist')
+                    return redirect('/products/edit/'+str(id)+'?status=error&message=Product code already exist')
 
-class AddVariant(View):
+class AddVariant(GroupRequiredMixin, View):
     def get(self, request, id):
         variantcount = ProductVariant.objects.filter(product_ref=id).count()
         product = Product.objects.get(product_id = id)
@@ -307,7 +310,7 @@ class AddVariant(View):
             new_attrvalue.save()
         return redirect("/products/"+ str(id)+ "/variant/add?status=success")
 
-class EditVariant(View):
+class EditVariant(GroupRequiredMixin, View):
     VarAttrValueFormset = modelformset_factory(VariantAttributeValue, form=VarAttrValueForm, extra=0)
     price_formset = modelformset_factory(ProductPrice, form=SellingPriceForm2, extra=0)
     def get(self, request, id):
@@ -372,7 +375,7 @@ class EditVariant(View):
 
         return redirect("/products/variant/edit/"+str(id)+"?status=success")
 
-class DeleteProduct(View):
+class DeleteProduct(GroupRequiredMixin, View):
     def get(self, request, id):
         product = Product.objects.get(product_id = id)
         product_detail = ProductDetail.objects.get(product_ref=id)
@@ -382,7 +385,7 @@ class DeleteProduct(View):
         product.delete()
         return redirect('view_products')
     
-class DeleteVariant(View):
+class DeleteVariant(GroupRequiredMixin, View):
     def get(self, request, id):
         variant = ProductVariant.objects.get(variant_id = id)
         product_detail = ProductDetail.objects.get(variant_ref=id)

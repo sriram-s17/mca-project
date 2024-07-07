@@ -9,35 +9,485 @@
     <title>{% block title %}{% endblock %}</title>
     
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script> -->
     
-    <!-- Jquery and datatables -->
+    <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    
+    <!-- datatables library -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     
+    <!-- Fontawesome icon -->
+    <link rel="stylesheet" href="/assets/lib/fontawesome/css/all.min.css">
+
+    <!-- chosen jquery plugin -->
+    <link rel="stylesheet" href="/assets/lib/chosen/chosen.min.css">
+    <script src="/assets/lib/chosen/chosen.jquery.min.js"></script>
+
+    <!-- select jquery plugin -->
+     <link rel="stylesheet" href="/assets/lib/select2/css/select2.min.css">
+    <script src="/assets/lib/select2/js/select2.min.js"></script>
+
     <!-- custom css -->
-    <link href="/assets/css/main.css" rel="stylesheet">
+    <!-- <link href="/assets/css/main.css" rel="stylesheet"> -->
     <style>
-      .login_div{
+        .m-0{
+            margin: 0px;
+        }
+        /* navbar styles */
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            background-color: #f4f4f4;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #1e2125;
+            height: 100vh;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            background-color: #282c34;
+            border-bottom: 1px solid #3a3f47;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.4em;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .nav-list li {
+            border-bottom: 1px solid #3a3f47;
+        }
+
+        .nav-list a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .nav-list a:hover {
+            background-color: #3a3f47;
+        }
+
+        .nav-list i {
+            margin-right: 10px;
+        }
+
+        /* Dropdown styles */
+        .dropdown-content {
+            display: none;
+            background-color: #2c2f33;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .dropdown-content a {
+            padding-left: 40px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #4a4e57;
+        }
+
+        .dropdown .right {
+            margin-left: auto;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
+        /* sidebar scrollbar styles */
+        .sidebar::-webkit-scrollbar {
+        width:5px;
+        position: relative;
+        left: 5;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+        background: rgba(58,63,71, 0)
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+        }
+
+        /* content styles */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* container styling */
+        .container {
+            background: #fff;
+            padding: 10px 20px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2{
+            color: #333;
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        i {
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+
+        /* General table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0px 0px 14px #aaa;
+            overflow-x: auto;
+        }
+
+        th, td {
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #ccc;
+            padding: 10px 12px;
+            color: #333;
+            border-bottom: 1px solid #aaa;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 5px 11px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Alternate row colors for better readability */
+        tr:nth-child(even) td {
+            background-color: #e4e4e4;
+        }
+
+        /* Hover effect for table rows */
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* Table headers and action buttons styling */
+        .table-container .table-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .table-container .btn {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .table-container .btn-edit {
+            background-color: #ff9900;
+            color: white;
+        }
+
+        .table-container .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .table-container .btn-add {
+            background-color: #28a745;
+            color: white;
+            float: right;
+            padding:8px 12px;
+            margin-bottom: 20px;
+        }
+
+        .table-container .btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px 10px;
+            }
+
+            .table-container .btn {
+                padding: 6px 8px;
+            }
+
+            .table-container .btn-add {
+                float: none;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* select2 styles */
+        .select2-container {
+            margin: 10px 0 20px 0;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 40px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 18px; /* Adjust to center text vertically */
+        }
+
+        .select2-container .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+        }
+
+        .select2-container .select2-dropdown {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .select2-dropdown--above{
+            position: relative;
+            bottom: 10px;
+        }
+        .select2-dropdown--below{
+            position: relative;
+            top: -10px;
+        }
+        .select2-search__field{
+            padding: 6px !important;
+        }
+        .select2-container .select2-results__option {
+            padding: 10px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #5897fb;
+            color: white;
+        }
+
+        /* Form Styles */
+        form input[type="text"],
+        form input[type="password"],
+        form input[type="number"],
+        form input[type="email"],
+        form textarea,
+        form select,
+        form input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 16px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        form input[type="checkbox"] {
+            position: relative;
+            top: 2px;
+            margin: 8px 0 16px 0
+        }
+
+        form button[type="submit"] {
+            background-color: #008CBA;
+            color: white;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        form button[type="submit"]:hover {
+            background-color: #05a4da;
+            box-shadow: 2px 2px 15px #008CBA ;
+        }
+        
+        #add_attribute_btn{
+            color: #333;
+            background-color: white;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding:7px 15px;
+            margin: 0 0 20px 0;
+        }
+
+        .attribute_form{
+            border: 1px solid #ccc;
+            margin: 10px 0px;
+            padding:10px;
+            display:flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+        }
+        .attribute_form label, .attribute_form select {
+            display: inline;
+            width: initial;
+            margin: 0px;
+        }
+        .attribute_form .select2-container{
+            display: inline;
+            width: initial;
+        }
+        .attribute_form button {
+            padding: 5px 10px;
+            color: black;
+            background-color: #ccc;
+        }
+        .field-error {
+            margin-top: 0.3rem;
+            color: red;
+        }
+        .help-text{
+            color:green
+        }
+        @media (max-width:900px) {
+            .help-text{
+                display:block
+            }
+        }
+        .image-upload-container {
+            position: relative;
+            width: 180px; /* Adjust width as needed */
+            height: 180px; /* Adjust height as needed */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            background-color: #f8f8f8;
+            margin: 10px 0 20px 0;
+            padding: 10px;
+        }
+
+        .image-upload-container input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .image-upload-container img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            border-radius: 4px;
+        }
+        
+        .image-clear-container button{
+            background-color: white;
+            width: 180px;
+            padding: 6px 10px;
+            margin-top: 8px;
+        }
+        .image-clear-container button.remove{
+            border: 1px solid rgb(252, 72, 72);
+            color:rgb(252, 72, 72)
+        }
+        .image-clear-container button.undo{
+            border: 1px solid rgb(0, 110, 255);
+            color:rgb(0, 110, 255);
+        }
+        input[name*="-clear"]{
+            display:none;
+        }
+
+        .alert{
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.6rem;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert i{
+            font-size: 1em;
+        }
+        
+
+        .login_div{
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100%
-      }
-        body{
-            margin-top:60px;
         }
-        /* .purchase_item, */
-         /* .sale_item,  */
-         .attribute_form, .price_set{
-          border: 1px solid black;
-          padding:10px;
-          display:flex;
-          flex-wrap: wrap;
-          justify-content:space-between;
-        }
+        .price_set{
+            border: 2px solid #ccc;
+            margin: 15px 0px;
+            padding:10px;
+            display:flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+}
         .helptext, #available_stock{
           display:inline;
           color: green;
@@ -60,12 +510,12 @@
         .error-message{
           color:red;
         }
-        .prod_has_var td{
+        /* .prod_has_var td{
           background-color:rgba(204, 204, 0,0.8)
         }
         .prod_var_inside td{
           background-color:rgba(204, 204, 0,0.5)
-        }
+        } */
         input[readonly]{
           border: 1px solid #999;
           background-color: #ddd;
@@ -115,15 +565,87 @@
     {% block custom_head_tag %}{% endblock %}
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top bg-orange">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Hardware Shop Management</a>
-        
-            {% block menubar %}{% endblock %}
-          
-    </div>
-</nav>
-    {% block content %}{% endblock %}
-    <script src="/assets/js/main.js"></script>
+    {% block menubar %}{% endblock %}
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+    <!-- <script src="/assets/js/main.js"></script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var dropdowns = document.querySelectorAll('.dropdown > a');
+
+            dropdowns.forEach(function (dropdown) {
+                dropdown.addEventListener('click', function (event) {
+                    let i = dropdown.querySelector(".right")
+                    i.classList.toggle("fa-angle-down")
+                    i.classList.toggle("fa-angle-right")
+                    event.preventDefault();
+                    var parent = this.parentElement;
+                    parent.classList.toggle('active');
+                });
+            });
+        });
+        function focus_inputfield(inputfield){
+            inputfield.focus()
+            let value = inputfield.value
+            inputfield.value=""
+            inputfield.value = value
+        }
+        let product_image_input = document.querySelector('[name="product_image"]')
+        const preview = document.querySelector('#image-preview');
+        const image_para = document.querySelector(".image-upload-container p")
+        const clear_label = document.querySelector(".image-clear-container [for*='clear_id']")
+        const clear_checkbox = document.querySelector(".image-clear-container input[type='checkbox']")
+        let current_image_src;
+        if(product_image_input){
+            if(preview.src != "" && preview.src != "#"){
+                preview.style.display = 'block';
+                image_para.style.display = 'none';
+            }
+            if(clear_label){
+                current_image_src = preview.src
+            }
+            product_image_input.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onloadend = function() {
+                    if(clear_label){
+                        remove_exist_image_func()
+                    }
+                    display_preview(reader.result)
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                } else {
+                    hide_preview()
+                }
+            });
+        }
+        function remove_exist_image_func(){
+            console.log("remove function executed")
+            hide_preview()
+            clear_label.innerHTML = "<button class='undo' onclick='keep_exist_image_func()'><i class='fa-solid fa-arrow-rotate-left'></i>Undo</button>"
+            clear_checkbox.checked = true;
+        }
+        function keep_exist_image_func(){
+            display_preview(current_image_src)
+            clear_label.innerHTML = `<button class="remove" type="button" onclick='remove_exist_image_func()'><i class="fa-regular fa-circle-xmark"></i>Remove Exist Image</button>`
+            clear_checkbox.checked = false;
+            product_image_input.value = ""
+        }
+        function display_preview(img_src){
+            preview.src = img_src;
+            preview.style.display = 'block';
+            image_para.style.display = 'none';     
+        }
+        function hide_preview(){
+            preview.src = "#"
+            preview.style.display = "none"
+            image_para.style.display = "block";
+        }
+    </script>
+    {% block script %} {% endblock %}
 </body>
 </html>

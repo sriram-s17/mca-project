@@ -13,22 +13,72 @@
 {% endblock %}
 
 {% block content %}
-<h1>Add Variant</h1>
-<a href="/products/"><button>Back to Products</button></a>
-
-{% if message %}
-<p class="success-message">{{message}}</p>
-{% endif %}
-
-<p>Add variant for the product '{{product.product_name}}'</p>
-<form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{variant_form}}
-    {{detail_form}}
-    {{selling_price_form}}
-    {% for form in attr_value_forms %}
-        {{form}}
-    {% endfor %}
-    <button type="submit">Save</button>
-</form>
+<a href="/products/"><button><i class="fa-solid fa-arrow-left"></i>Back to Products</button></a>
+<div class="form-container">
+    <h1>Add Variant</h1>
+    
+    {% if message %}
+    <p class="success-message">{{message}}</p>
+    {% endif %}
+    
+    <p>Add variant for the product '{{product.product_name}}'</p>
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in variant_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+                {{ field }}
+            </div>
+        {% endfor %}
+        {% for field in detail_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+                {{ field }}
+            </div>
+        {% endfor %}
+        {% for field in selling_price_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+                {{ field }}
+            </div>
+        {% endfor %}
+        {% for form in attr_value_forms %}
+            {% for field in form %}
+                {% if field.field.widget.input_type != 'hidden' %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    {{ field }}
+                </div>
+                {% else %}
+                {{field}}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <button type="submit">Save</button>
+    </form>
+</div>
 {% endblock %}

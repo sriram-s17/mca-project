@@ -51,7 +51,7 @@ class ProductAttribute(models.Model):
 class ProductVariant(models.Model):
     variant_id = models.BigAutoField(primary_key=True)
     product_ref = models.ForeignKey(Product, on_delete=models.CASCADE)
-    variant_name = models.CharField(max_length=100, null=True)
+    variant_name = models.CharField(max_length=100)
     class Meta:
         db_table = 'product_variant'
     def __str__(self):
@@ -79,7 +79,10 @@ class ProductDetail(models.Model):
         db_table = 'product_detail'
         ordering = ['product_ref']
     def __str__(self):
-        return self.product_code + " "+ str(self.product_ref) +" " + (str(self.variant_ref) if self.variant_ref else "")
+        if self.variant_ref:
+            return self.product_code + " "+ str(self.variant_ref)
+        else:
+            return self.product_code + " "+ str(self.product_ref)
 
 class ProductPrice(models.Model):
     product_price_id = models.BigAutoField(primary_key=True)

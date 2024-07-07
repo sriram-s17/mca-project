@@ -3,19 +3,21 @@ from django.views import View
 from database.forms import *
 from django.contrib.auth.decorators import login_required
 from user.views import GroupRequiredMixin
-from django.contrib.auth.models import Group
+# from django.contrib.auth.models import Group
 
 # Create your views here.
 
 class ViewWarehouses(GroupRequiredMixin, View):
-    groups_required = [group[0] for group in Group.objects.all().values_list("name")]
+    # groups_required = [group[0] for group in Group.objects.all().values_list("name")]
+    groups_required = ['owner', 'salesman']
     def get(self, request):
         context = {
             'warehouses': Warehouse.objects.all()
         }
         return render(request, 'warehouses.html', context)
 
-class AddWarehouse(View):
+class AddWarehouse(GroupRequiredMixin, View):
+    groups_required = ['owner']
     def get(self, request):
         return render(request, 'add_warehouse.html', { 'warehouse_form':WarehouseForm })
     
@@ -28,7 +30,8 @@ class AddWarehouse(View):
             context = { 'warehouse_form':warehouse_form_data }
         return render(request, 'add_warehouse.html', context)
 
-class EditWarehouse(View):
+class EditWarehouse(GroupRequiredMixin, View):
+    groups_required = ['owner']
     def get(self, request, id):
         warehouse_obj = Warehouse.objects.get(warehouse_id=id)
         context = {
@@ -46,7 +49,8 @@ class EditWarehouse(View):
             context = { 'warehouse_form':warehouse_form_data }
             return render(request, 'edit_warehouse.html', context)
 
-class DeleteWarehouse(View):
+class DeleteWarehouse(GroupRequiredMixin, View):
+    groups_required = ['owner']
     def get(request,id):
         warehouse_obj = Warehouse.objects.get(warehouse_id=id)
         warehouse_obj.delete()

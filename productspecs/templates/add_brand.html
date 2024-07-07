@@ -13,16 +13,43 @@
 {% endblock %}
 
 {% block content %}
-<h1>Add Brands</h1>
-<a href="/products/brands/"><button>Back to Brands</button></a>
+<a href="/products/brands/"><button><i class="fa-solid fa-arrow-left"></i>Back to Brands</button></a>
+<div class="container">
+    <h2>Add Brand</h2>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+    
+        {% for field in brand_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+    
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+    
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+    
+            {{ field }}
+            </div>
+        {% endfor %}
+    
+        <button type="submit">Add Brand</button>
+    </form>
+</div>
+{% endblock %}
 
-{% if message %}
-<p class="success-message">{{message}}</p>
-{% endif %}
-
-<form action="" method="POST">
-    {% csrf_token %}
-    {{brand_form}}
-    <button type="submit">Add</button>
-</form>
+{% block script %}
+<script>
+    window.onload = ()=>{
+        brand_name = document.querySelector("input[name='brand_name']")
+        brand_name.focus()
+    }
+</script>
 {% endblock %}

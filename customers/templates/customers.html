@@ -13,40 +13,42 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Customers</h1>
-    <a href="/customers/add/"><button>Add Customers</button></a>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>id</th>
-                <th>Name</th>
-                <th>Gender</th>
-                <th>dob</th>
-                <th>Phone no</th>
-                <th>Email</th>
-                <th>Address</th>
-                <th>Profession</th>
-                <th>Added Date</th>
-                <th>edit</th>
-                <th>delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for customer in customers %}
-            <tr>
-                <td>{{customer.customer_id}}</td>
-                <td>{{customer.customer_name}}</td>
-                <td>{{customer.gender}}</td>
-                <td>{{customer.dob}}</td>
-                <td>{{customer.phoneno}}</td>
-                <td>{{customer.email}}</td>
-                <td>{{customer.address}}</td>
-                <td>{{customer.profession}}</td>
-                <td>{{customer.added_date}}</td>
-                <td><a href="{% url 'edit_customer' customer.customer_id %}"><button>edit</button></a></td>
-                <td><a href="{% url 'delete_customer' customer.customer_id %}"><button>delete</button></a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-container">
+        <h1 class="table-title">Customers</h1>
+        <a href="/customers/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Customers</button></a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>dob</th>
+                    <th>Phone no</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Profession</th>
+                    <th>Added Date</th>
+                    <th>edit</th>
+                    <th>delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>{{customer.customer_id}}</td>
+                    <td>{{customer.customer_name}}</td>
+                    <td>{{customer.gender}}</td>
+                    <td>{{customer.dob}}</td>
+                    <td>{{customer.phoneno}}</td>
+                    <td>{{customer.email}}</td>
+                    <td>{{customer.address}}</td>
+                    <td>{{customer.profession}}</td>
+                    <td>{{customer.added_date}}</td>
+                    <td><a href="{% url 'edit_customer' customer.customer_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pencil"></i>edit</button></a></td>
+                    <td><a href="{% url 'delete_customer' customer.customer_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can"></i>delete</button></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

@@ -3,9 +3,10 @@ from django.views import View
 from database.models import *
 from django.utils import timezone
 import calendar
+from user.views import GroupRequiredMixin
 
 # Create your views here.
-class ViewReport1(View):
+class ViewReport1(GroupRequiredMixin, View):
     def get(self, request):
         requested_period = request.GET.get("month_year", None)
         default_period = request.GET.get("default", "last 30 days")
@@ -64,6 +65,4 @@ def profit_of_sales(sales):
         "profit": profit, 
         "most_sold_items": most_sold_items
     }    
-    return context    
-
-
+    return context

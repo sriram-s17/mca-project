@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import UserPassesTestMixin, AccessMixin
+from django.contrib.auth.mixins import AccessMixin
 from database.forms import *
 
 # Create your views here.
@@ -37,7 +37,7 @@ def no_permission_page(request):
     return render(request, "no_permission.html")
 
 class GroupRequiredMixin(AccessMixin):
-    groups_required = []
+    groups_required = ['owner']
     
     def dispatch(self, request, *args, **kwargs):
         user = request.user
@@ -51,7 +51,6 @@ class GroupRequiredMixin(AccessMixin):
         return redirect("no_permission_page")
     
 class ChangePassword(GroupRequiredMixin, View):
-    groups_required =  ['owner']
     def get(self, request):
         context = {
             'form': ChangePwdForm
