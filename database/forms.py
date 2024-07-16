@@ -195,6 +195,15 @@ class TransferStockForm(RequiredModelForm):
         labels = {
             'warehouse_ref': "To warehouse",
         }
+        help_texts = {
+            "warehouse_ref": "Source and Destination should not be same"
+        }
         widgets = {
             "quantity": forms.NumberInput(attrs={"min":"0"})
         }
+
+class ProductDetailSelectForm(forms.Form):
+    product_detail_ref = forms.ModelChoiceField(queryset=ProductDetail.objects.all(), label="Choose Product")
+
+class CustomerSelectForm(forms.Form):
+    customer_ref = forms.ModelChoiceField(queryset=Customer.objects.all(), label="Select Customer")

@@ -2,5 +2,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', ViewReport1.as_view(), name="view_report1")
+    path('monthlywise/', MonthlyReport.as_view(), name="monthly_wise_report"),
+    path('productwise/', ProductWiseReport.as_view(), name="product_wise_report"),
+    path('customerwise/', CustomerWiseReport.as_view(), name="customer_wise_report")
 ]

@@ -13,82 +13,91 @@
 {% endblock %}
 
 {% block content %}
-<h2>Sale Details</h2>
-<a href="/sales/"><button>Back to Sales</button></a>
-<table class="table">
-    <tr>
-        <th>Id</th>
-        <td>{{sale_ref.sale_id}}</td>
-    </tr>
-    <tr>
-        <th>saled Date</th>
-        <td>{{sale_ref.sold_date}}</td>
-    </tr>
-    <tr>
-        <th>Customer</th>
-        <td>{{sale_ref.customer_ref}}</td>
-    </tr>
-</table>
-<h3>Products</h3>
-<table id="products" class="table">
-    <thead>
-        <th>Product Name</th>
-        <th>Quantity</th>
-        <th>Unit Cost Price</th>
-        <th>Total</th>
-    </thead>
-    <tbody>
-        {% for product in sale_items %}
+<a href="/sales/"><button><i class="fa-solid fa-arrow-left"></i>Back to Sales</button></a>
+
+<div class="container">
+    <h2>Sale Details</h2>
+    <table>
         <tr>
-            <td>{{product.product_with_price_ref}}</td>
-            <td class="quantity">{{product.quantity}}</td>
-            <td class="unit_sell_price">{{product.unit_sell_price}}</td>
-            <td class="total"></td>
+            <th><i class="fa-solid fa-hashtag"></i>Id</th>
+            <td>{{sale_ref.sale_id}}</td>
         </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<p id="bill_amount"><span>Product Bill Amount: </span><span>{{sale_ref.bill_amount}}</span></p>
-<p id="discount_percent"><span>Discount Percent: </span><span>{{sale_ref.discount_percent}}</span></p>
-<p id="discount_amount"><span>Discount Amount: </span><span>{{sale_ref.discount_amount}}</span></p>
-<p id="total_amount"><span>Total Amount: </span><span>{{total_amount}}</span></p>
-<h3>sale Payments</h3>
-<table class="table">
-    <thead>
-        <th>Payment Date</th>
-        <th>Paid Amount</th>
-        <th>Balance</th>
-    </thead>
-    <tbody>
-        {% if sale_payments %}
-            {% for payment in sale_payments %}
+        <tr>
+            <th><i class="fa-solid fa-calendar-days"></i>Sold Date</th>
+            <td>{{sale_ref.sold_date}}</td>
+        </tr>
+        <tr>
+            <th><i class="fa-solid fa-user"></i>Customer</th>
+            <td>{{sale_ref.customer_ref}}</td>
+        </tr>
+    </table>
+    <h3>Products</h3>
+    <table id="products" >
+        <thead>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Unit Cost Price</th>
+            <th>Total</th>
+        </thead>
+        <tbody>
+            {% for product in sale_items %}
             <tr>
-                <td>{{payment.payment_date}}</td>
-                <td>{{payment.paid_amount}}</td>
-                <td>{{payment.balance_amount}}</td>
+                <td>{{product.product_with_price_ref}}</td>
+                <td class="quantity">{{product.quantity}}</td>
+                <td class="unit_sell_price">&#8377; {{product.unit_sell_price}}</td>
+                <td class="total"></td>
             </tr>
             {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="3" style="text-align: center; font-size: 16px;">No Payment Done</td>
-            </tr>
-        {% endif %}
-    </tbody>
-</table>
-{% if balance_amount > 0 %}
-    <div>
-        <p>Balance Amount to Pay: {{balance_amount}}</p>
-        <p><a href="{% url 'add_sale_payment' sale_ref.sale_id %}"><button>Add Payment</button></a></p>
+        </tbody>
+    </table>
+    <div class="display_amounts">
+        <p class="bill_amount"><strong>Product Bill Amount: </strong><span>&#8377; {{sale_ref.bill_amount}}</span></p>
+        <p class="discount_amount"><strong>Discount Amount: </strong><span>- &#8377; {{sale_ref.discount_amount}} ({{sale_ref.discount_percent}})</span></p>
+        <p class="total_amount"><strong>Total Amount: </strong><span>{{total_amount}}</span></p>
     </div>
-{% elif balance_amount == 0 %}
-    <p style="text-align: center; font-size: 16px;">Full amount paid</p>
-{% endif %}
+    <h3>sale Payments</h3>
+    <table class="table">
+        <thead>
+            <th>Payment Date</th>
+            <th>Paid Amount</th>
+            <th>Balance</th>
+        </thead>
+        <tbody>
+            {% if sale_payments %}
+                {% for payment in sale_payments %}
+                <tr>
+                    <td>{{payment.payment_date}}</td>
+                    <td>&#8377; {{payment.paid_amount}}</td>
+                    <td>&#8377; {{payment.balance_amount}}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; font-size: 16px;">No Payment Done</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    {% if balance_amount > 0 %}
+        <div>
+            <strong><i class="fa-solid fa-hand-holding-dollar"></i>Balance Amount to Pay: &#8377; {{balance_amount}}</strong>
+            <p><a href="{% url 'add_sale_payment' sale_ref.sale_id %}"><button class="btn btn-payment"><i class="fa-solid fa-indian-rupee-sign"></i>Record Payment</button></a></p>
+        </div>
+    {% elif balance_amount == 0 %}
+        <p class="full_amount_paid">Full amount paid</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
 <script>
     quantities = document.querySelectorAll(".quantity")
     unit_sell_prices =  document.querySelectorAll(".unit_sell_price")
     totals = document.querySelectorAll(".total")
     for(let i=0; i<quantities.length; i++){
-        totals[i].textContent =  parseFloat(quantities[i].textContent) * parseFloat(unit_sell_prices[i].textContent)
+        price = unit_sell_prices[i].textContent.substr(1)
+        totals[i].innerHTML = "&#8377; " + parseFloat(quantities[i].textContent) * parseFloat(price)
+        totals[i].style.width = "max-content";
     }
 </script>
 {% endblock %}

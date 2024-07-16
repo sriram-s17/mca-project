@@ -14,16 +14,16 @@
 
 {% block content %} 
 <a href="/customers/"><button><i class="fa-solid fa-arrow-left"></i>Back to Customers</button></a>
-<div class="form-container">
+<div class="container">
     <h1>Add Customers</h1>
     
     {% if message %}
-    <p class="success-message">{{message}}</p>
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
     {% endif %}
     
     {% if customer_form.errors %}
         {% for error in customer_form.non_field_errors %}
-            <p class="error-message">{{error}}</p>
+            <p class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{error}}</p>
         {% endfor %}
     {% endif %}
     
@@ -31,17 +31,29 @@
         {% csrf_token %}
         {% for field in customer_form %}
             <div class="form-group">
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                    <small class="help-text">{{ field.help_text }}</small>
-                {% endif %}
-                {% for error in field.errors %}
-                    <div class="field-error">{{ error }}</div>
-                {% endfor %}
-                {{ field }}
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
             </div>
         {% endfor %}
         <button type="submit">Add Customer</button>
     </form>
 </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        customer_name = document.querySelector("input[name='customer_name']")
+        customer_name.focus()
+    }
+</script>
 {% endblock %}

@@ -1,8 +1,0 @@
-.errorlist li{
-    list-style-type: none;
-    color: red;
-}
-div.required label::after {
-    content: ' *';
-    color: red;
-}

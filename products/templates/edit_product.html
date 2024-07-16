@@ -59,17 +59,17 @@
                 {% if field.field.widget.input_type != 'file' %}
                     {{ field }}
                 {% else %}
-                    {% if field.value.url %}
+                    {% if field.value %}
                         <div class="image-clear-container">
                             <input type="checkbox" name="{{field.name}}-clear" id="{{field.name}}-clear_id">
-                            <label for="{{field.name}}-clear_id"><button class="remove" type="button" onclick='remove_image_func()'><i class="fa-regular fa-circle-xmark"></i>Remove Exist Image</button></label>
+                            <button class="remove clear_checkbox_button" type="button"><i class="fa-regular fa-circle-xmark"></i>Remove Old Image</button>
                         </div>
                     {% endif %}
                     <div class="image-upload-container">
-                        {% if field.value.url %}
+                        {% if field.value %}
                             <img id="image-preview" src="{{field.value.url}}" alt="Image Preview">
                         {% else %}
-                            <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+                            <img id="image-preview" src="" alt="Image Preview">
                         {% endif %}
                         <input type="file" name="{{ field.name}}" id="{{field.auto_id}}">
                         <p style="margin:20px; font-size: 12px;">Click or Drop here to Upload image</p>
@@ -153,9 +153,9 @@
                 {% endfor %}
                 </div>
             {% endfor %}
-            <button type="button" id="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
+            <button type="button" class="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
         </div>
-        <button id="save_button" type="submit">Save Product Details</button>
+        <button id="save_button" type="submit">Save</button>
     </form>
 </div>
 {% endblock %}
@@ -175,7 +175,7 @@
     
     //initial requirements for adding attributes
     const attributes_div = document.querySelector("#attributes_div")
-    const add_attribute_btn = document.querySelector("#add_attribute_btn")
+    const add_attribute_btn = document.querySelector(".add_attribute_btn")
     let attribute_select = `
     {% for field in attribute_form %}
     <div class="form-group">

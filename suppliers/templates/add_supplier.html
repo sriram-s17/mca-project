@@ -13,23 +13,50 @@
 {% endblock %}
 
 {% block content %} 
-<h1>Add Suppliers</h1>
+<a href="/suppliers/"><button><i class="fa-solid fa-arrow-left"></i>Back to Suppliers</button></a>
 
-<a href="/suppliers/"><button>Back to Suppliers</button></a>
+<div class="container">
+    <h2>Add Suppliers</h2>
+    
+    {% if message %}
+    <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    {% if supplier_form.errors %}
+        {% for error in supplier_form.non_field_errors %}
+            <p class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{error}}</p>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="POST" action="">
+        {% csrf_token %}
 
-{% if message %}
-<p class="success-message">{{message}}</p>
-{% endif %}
+        {% for field in supplier_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
 
-{% if supplier_form.errors %}
-    {% for error in supplier_form.non_field_errors %}
-        <p class="error-message">{{error}}</p>
-    {% endfor %}
-{% endif %}
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+            </div>
+        {% endfor %}
 
-<form method="POST" action="">
-    {% csrf_token %}
-    {{supplier_form}}
-    <button type="submit">Add Supplier</button>
-</form> 
+        <button type="submit">Add Supplier</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        shop_name = document.querySelector("input[name='shop_name']")
+        shop_name.focus()
+    }
+</script>
 {% endblock %}

@@ -58,7 +58,7 @@
                     {% else %}
                         <div class="image-upload-container">
                             {{ field }}
-                            <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+                            <img id="image-preview" src="" alt="Image Preview" style="display:none;">
                             <p style="margin:20px; font-size: 12px;">Click or Drop here to Upload image</p>
                         </div>
                     {% endif %}
@@ -84,7 +84,7 @@
         </div>
         <div id="attributes_div" style="display: none;">
     
-            <button type="button" id="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
+            <button type="button" class="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
 
         </div>
         <button id="add_button" type="submit">Add Product</button>
@@ -97,6 +97,10 @@
     $('select').select2({
         width: "100%"
     })
+    window.onload = ()=>{
+        product_name = document.querySelector("input[name='product_name']")
+        product_name.focus()
+    }
 
     const productdetailform = document.querySelector("#productdetail")
     const add_button = document.querySelector("#add_button")
@@ -104,7 +108,7 @@
     
     //initial requirements for adding attributes
     const attributes_div = document.querySelector("#attributes_div")
-    const add_attribute_btn = document.querySelector("#add_attribute_btn")
+    const add_attribute_btn = document.querySelector(".add_attribute_btn")
     
     // attribute form
     let attribute_select = `

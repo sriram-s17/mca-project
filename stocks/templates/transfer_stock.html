@@ -13,29 +13,64 @@
 {% endblock %}
 
 {% block content %}
-<h2>Transfer Stocks</h2>
-<a href="/stocks/"><button>Back to Stocks</button></a>
-<form action="" method="POST">
-    {%csrf_token%}
-    {{product_select_form}}
-    <div id="from_stock">
-        <h3>From</h3>
-        <div>
-            <label for="id_from_warehouse_ref" class="required">From Warehouse</label>
-            <select name="from_warehouse_ref" id="id_from_warehouse_ref" required>
-                <option>--------</option>
-            </select>
-            <p id="available_stock" style="display:none;">Available Stock of the product in this warehouse: <span> </span></p>
+<a href="/stocks/"><button><i class="fa-solid fa-arrow-left"></i>Back to Stocks</button></a>
+
+<div class="container">
+    <h2>Transfer Stocks</h2>
+    <form action="" method="POST">
+        {%csrf_token%}
+        {% for field in product_select_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+    
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+    
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+    
+            {{ field }}
+            </div>
+        {% endfor %}
+        <div id="from_stock">
+            <h3>From</h3>
+            <div>
+                <label for="id_from_warehouse_ref" class="required">From Warehouse</label>
+                <select name="from_warehouse_ref" id="id_from_warehouse_ref" required>
+                    <option>--------</option>
+                </select>
+                <small class="help-text" id="available_stock" style="display:none;">Available Stock of the product in this warehouse: <span> </span></small>
+            </div>
         </div>
-    </div>
-    <div id="to_stock">
-        <h3>To</h3>
-        {{transfer_stock_form}}
-    </div>
-    <p id="same_warehouse_error" style="display:none;color: red;">source and destination warehouses cannot be same</p>
-    <button id="transfer_button" disabled>Transfer</button>
-</form>
+        <div id="to_stock">
+            <h3>To</h3>
+            {% for field in transfer_stock_form %}
+                <div class="form-group">
+                {{ field.label_tag }}
+        
+                {% if field.help_text %}
+                    <small id="same_warehouse_error" style="display:none;color:red;">{{ field.help_text }}</small>
+                {% endif %}
+        
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+        
+                {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit" id="transfer_button" disabled>Transfer Stock</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
 <script>
+    $('[name="product_with_price_ref"]').select2()
+
     let ppid = document.querySelector("select[name='product_with_price_ref']")
     let from_warehouse = document.querySelector("[name='from_warehouse_ref']")
     let quantity = document.querySelector("[name='quantity']")
@@ -51,7 +86,13 @@
     }
     
     //adding change event listener to the product selection input
-    ppid.addEventListener("change",get_stock_data)
+    $(ppid).on('select2:select', function (e) {
+        let select2data = e.params.data;
+        let ppid = select2data.id;
+        ppid.value = ppid;
+        get_stock_data()
+    })
+
     function get_stock_data(){
         from_warehouse.innerHTML = "<option>--------</option>"
         fetch("/stocks/products/warehouseandquantity?ppid="+ppid.value)

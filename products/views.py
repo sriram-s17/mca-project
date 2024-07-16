@@ -183,9 +183,9 @@ class EditProduct(GroupRequiredMixin, View):
         status = request.GET.get("status", None)
         if status is not None:
             if status=="success":
-                context["message"] = "Detail saved !"
+                context["message"] = "Product Detail saved !"
             elif status == 'error':
-                context["error"] = request.GET.get('message', None)
+                context["error"] = "Something gone error!"
         return render(request, 'edit_product.html', context)
     
     def post(self, request, id):
@@ -236,9 +236,10 @@ class EditProduct(GroupRequiredMixin, View):
                 product_detail = ProductDetail.objects.filter(product_ref=id).first()
                 
                 #if the product before has image in product detail and now it is removed in form, then the existing file is deleted
-                if request.POST.get("product_image-clear", None):
-                    if os.path.exists(product_detail.product_image.path):
-                        os.remove(product_detail.product_image.path)
+                if request.POST.get("product_image-clear", None) or request.FILES.get("product_image", None):
+                    if product_detail.product_image:
+                        if os.path.exists(product_detail.product_image.path):
+                            os.remove(product_detail.product_image.path)
 
                 # below code saves product detail newly or updating existing
                 detail_form_data = ProductDetailForm2(request.POST, request.FILES, instance=product_detail)
@@ -263,7 +264,7 @@ class EditProduct(GroupRequiredMixin, View):
                         price_formset_data.save()
                     return redirect('/products/edit/'+str(id)+'?status=success')
                 else:
-                    return redirect('/products/edit/'+str(id)+'?status=error&message=Product code already exist')
+                    return redirect('/products/edit/'+str(id)+'?status=error')
 
 class AddVariant(GroupRequiredMixin, View):
     def get(self, request, id):
@@ -324,6 +325,19 @@ class EditVariant(GroupRequiredMixin, View):
             'detail_form': ProductDetailForm2(instance=product_detail),
             'attr_value_formset': self.VarAttrValueFormset(queryset=var_attr_values),
         }
+
+        no_value_attr_value_forms = []
+        attributes = [instance.product_attr_ref.attribute_ref for instance in var_attr_values]
+        no_value_attributes = ProductAttribute.objects.filter(product_ref=product_detail.product_ref).exclude(attribute_ref__in = attributes)
+        if no_value_attributes:
+            for attr in no_value_attributes:
+                no_value_attr_value_forms.append(VarAttrValueForm(initial={"product_attr_ref":attr.product_attr_id}, 
+                                                                     label_suffix=" "+str(attr.attribute_ref), 
+                                                                     auto_id="id_%s_"+str(attr.product_attr_id)
+                                                                     ))
+        if no_value_attr_value_forms:
+            context["no_value_attr_value_forms"] = no_value_attr_value_forms
+
         product_prices = ProductPrice.objects.filter(product_detail_ref=product_detail)
         if product_prices.count() ==  1:
             context['selling_price_form'] = SellingPriceForm(instance=product_prices.first())
@@ -335,7 +349,9 @@ class EditVariant(GroupRequiredMixin, View):
         status = request.GET.get("status", None)
         if status is not None:
             if status=="success":
-                context["message"] = "Variant edit saved !"
+                context["message"] = "Variant Details saved !"
+            elif status=="error":
+                context["error"] = "Something Gone Error!"
         return render(request, "edit_variant.html", context)
 
     def post(self, request, id):
@@ -345,9 +361,10 @@ class EditVariant(GroupRequiredMixin, View):
         product_detail = ProductDetail.objects.filter(variant_ref=variant).first()
         
         #if the variant before has image in product detail and now it is removed in form, then the existing file is deleted
-        if request.POST.get("product_image-clear", None):
-            if os.path.exists(product_detail.product_image.path):
-                os.remove(product_detail.product_image.path)
+        if request.POST.get("product_image-clear", None) or request.FILES.get("product_image", None):
+            if product_detail.product_image:
+                if os.path.exists(product_detail.product_image.path):
+                    os.remove(product_detail.product_image.path)
 
         product_detail_form_data = ProductDetailForm2(request.POST, request.FILES, instance=product_detail)
         attr_values_formset_data = self.VarAttrValueFormset(request.POST)
@@ -357,6 +374,15 @@ class EditVariant(GroupRequiredMixin, View):
             product_detail_form_data.save()
             if attr_values_formset_data.is_valid():
                 attr_values_formset_data.save()
+
+            # if new attribute added in edited product, then value for the attribute is saved
+            attribute_refs = request.POST.getlist("product_attr_ref")
+            values = request.POST.getlist("value")
+            if attribute_refs:
+                for i in range(len(attribute_refs)):
+                    new_attrvalue = VariantAttributeValue(variant_ref_id = variant.variant_id, product_attr_ref_id = attribute_refs[i], value = values[i])
+                    new_attrvalue.save()
+
             product_prices = ProductPrice.objects.filter(product_detail_ref=product_detail)
             selling_price = request.POST.get("selling_price", None)
             if selling_price:
@@ -372,6 +398,8 @@ class EditVariant(GroupRequiredMixin, View):
                 nonzerostockproductsprices = StockDetail.objects.filter(product_with_price_ref__in=product_prices, quantity__gt=0).values_list("product_with_price_ref")
                 price_formset_data = self.price_formset(request.POST, queryset=product_prices.filter(product_price_id__in = nonzerostockproductsprices))
                 price_formset_data.save()
+        else:
+            return redirect('/products/variant/edit/'+str(id)+'?status=error')
 
         return redirect("/products/variant/edit/"+str(id)+"?status=success")
 

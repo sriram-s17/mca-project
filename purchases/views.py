@@ -110,12 +110,12 @@ class AddPurchase(GroupRequiredMixin, View):
                     
         return redirect("view_purchase", new_purchase.purchase_id)
 
-class AddPayment(GroupRequiredMixin, View):
+class RecordPayment(GroupRequiredMixin, View):
     def get(self, request, id):
         purchase = PurchaseHeaderDetail.objects.filter(purchase_id=id).first()
         if purchase:
             context = get_purchase_detail(purchase, False, False)
-            return render(request, "add_payment.html", context)
+            return render(request, "record_purchase_payment.html", context)
         else:
             return redirect('view_purchases')
     

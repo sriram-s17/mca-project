@@ -112,7 +112,7 @@ class AddSale(GroupRequiredMixin, View):
                     
         return redirect("view_sale", new_sale.sale_id)
 
-class AddPayment(GroupRequiredMixin, View):
+class RecordPayment(GroupRequiredMixin, View):
     groups_required = ['owner', 'salesman']
     def get(self, request, id):
         sale = SaleHeaderDetail.objects.filter(sale_id=id).first()
@@ -121,7 +121,7 @@ class AddPayment(GroupRequiredMixin, View):
         else:
             return redirect('view_sales')
 
-        return render(request, "add_sale_payment.html", context)
+        return render(request, "record_sale_payment.html", context)
     
     def post(self, request, id):
         paid_amount = float(request.POST["paid_amount"])

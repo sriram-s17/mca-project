@@ -13,8 +13,8 @@
 {% endblock %}
 
 {% block content %}
-    <div class="table-container">
-        <h1 class="table-title">Customers</h1>
+    <div class="container">
+        <h2>Customers</h2>
         <a href="/customers/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Customers</button></a>
         <table class="table">
             <thead>
@@ -44,8 +44,8 @@
                     <td>{{customer.address}}</td>
                     <td>{{customer.profession}}</td>
                     <td>{{customer.added_date}}</td>
-                    <td><a href="{% url 'edit_customer' customer.customer_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pencil"></i>edit</button></a></td>
-                    <td><a href="{% url 'delete_customer' customer.customer_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can"></i>delete</button></a></td>
+                    <td><a href="{% url 'edit_customer' customer.customer_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                    <td><a href="{% url 'delete_customer' customer.customer_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can m-0"></i></button></a></td>
                 </tr>
                 {% endfor %}
             </tbody>

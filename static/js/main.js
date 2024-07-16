@@ -1,13 +1,23 @@
-// let common_input_fields = document.querySelectorAll("input[type='number'], input[type='text'], input[type='password'], input[type='email']")
-// let labels = document.querySelectorAll("label")
-// let submit_buttons = document.querySelectorAll("button[type='submit']")
+let menu_icon = document.querySelector('.menu_icon')
+let main_content = document.querySelector(".content")
+let sidebar = document.querySelector(".sidebar")
+menu_icon.addEventListener("click", ()=>{
+    toggle_sidebar(sidebar.classList.contains("shown"));
+})
+const mediaquery = window.matchMedia('(max-width:850px)');
 
-// common_input_fields.forEach((inputfield)=>{
-//     inputfield.classList.add("form-control")
-// })
-// labels.forEach((label)=>{
-//     label.classList.add("form-label")
-// })
-// submit_buttons.forEach((button)=>{
-//     button.classList.add("btn","btn-primary")
-// })
+// adding listener for changes
+mediaquery.onchange =()=> toggle_sidebar(mediaquery.matches)
+
+function toggle_sidebar(condition){
+    if(condition){
+        sidebar.classList.remove("shown")
+        sidebar.classList.add("hide")
+        main_content.classList.add("full_display")
+    }
+    else{
+        sidebar.classList.add("shown")
+        sidebar.classList.remove("hide")
+        main_content.classList.remove("full_display")
+    }
+}

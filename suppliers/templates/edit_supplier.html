@@ -12,20 +12,42 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-<h1>Edit Supplier Details</h1>
+{% block content %} 
+<a href="/suppliers/"><button><i class="fa-solid fa-arrow-left"></i>Back to Suppliers</button></a>
 
-<a href="/suppliers/"><button>Back to Suppliers</button></a>
+<div class="container">
+    <h2>Edit Supplier Detail</h2>
+    
+    {% if message %}
+    <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    {% if supplier_form.errors %}
+        {% for error in supplier_form.non_field_errors %}
+            <p class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{error}}</p>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="POST" action="">
+        {% csrf_token %}
 
-{% if supplier_form.errors %}
-    {% for error in supplier_form.non_field_errors %}
-        <p class="alert alert-danger">{error}</p>
-    {% endfor %}
-{% endif %}
+        {% for field in supplier_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
 
-<form method="POST" action="">
-    {% csrf_token %}
-    {{supplier_form}}
-    <button type="submit">Save details</button>
-</form>
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+            </div>
+        {% endfor %}
+
+        <button type="submit">Save</button>
+    </form>
+</div>
 {% endblock %}
