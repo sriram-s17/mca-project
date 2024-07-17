@@ -6,14 +6,13 @@ body {
 
 /* Header styles */
 .header {
-    padding: 12px 20px;
+    padding: 12px 15px;
     background-color: white;
     border-bottom: 1px solid #3a3f47;
     display: flex;
     align-items: baseline;
     position: fixed;
     width: 100%;
-    gap: 20px;
     z-index: 2000;
     transition: all 0.5s;
 }
@@ -42,7 +41,7 @@ body {
 .sidebar {
     width: 14em;
     background-color: #1e2125;
-    height: 100vh;
+    height: 100%;
     color: #fff;
     position: fixed;
     top: 0;
@@ -135,7 +134,7 @@ body {
 }
 
 .below-content .content{
-    padding-top:4.5em;
+    padding-top:4em;
 }
 
 .content {

@@ -69,7 +69,7 @@ def monthly_profit_of_sales(sales):
     }  
     return context
 
-class ProductWiseReport(View):
+class ProductWiseReport(GroupRequiredMixin, View):
     def get(self, request):
         pdid = request.GET.get("product_detail_ref")
         context = {}
@@ -121,7 +121,7 @@ def sales_report_of_product(pdid):
     }
     return context
 
-class CustomerWiseReport(View):
+class CustomerWiseReport(GroupRequiredMixin, View):
     def get(self, request):
         cid = request.GET.get("customer_ref")
         context = {}

@@ -36,7 +36,6 @@
             float:right !important;
         }
         
-
         /* container styling */
         .container {
             background: #fff;
@@ -94,6 +93,7 @@
             color: #333;
         }
 
+        
         /* Button Styles */
         button {
             background-color: #333;
@@ -111,6 +111,7 @@
         button.product_spec_btn, button.other_report_btn{
             padding: 11px 20px;
             border-radius: 20px;
+            margin: 5px 5px 0 5px;
         }
 
         i {
@@ -200,6 +201,72 @@
                 width: 100%;
                 text-align: center;
             }
+        }
+
+        /* Home page box styles */
+        .box-container{
+            display:flex;
+            align-items: stretch;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .box{
+            border-collapse: collapse;
+            width: 9.5em;
+            margin: 0px;
+        }
+        .box p{
+            margin: 0px;
+        }
+        .box tbody td, .box thead th, .box tfoot td{
+            border: 1px solid rgb(253, 205, 115);
+            text-align: center;
+        }
+
+        .box .title-heading, .box .single-title-heading{
+            font-size: 1.1em;
+        }
+        .box .single-title-heading{
+            padding: 10px 5px;
+        }
+        .box thead th{
+            padding: 3px 5px;
+            background-color: rgb(253, 205, 115);
+        }
+        .box tbody td{
+            padding: 3px 5px;
+            font-size: 0.9em;
+            width:50%;
+            box-sizing: border-box;
+            background-color: white !important;
+        }
+        .box .content-heading td{
+            border-bottom: 0px;
+            font-weight: bold;
+        }
+        .box .single-content-value td{
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .box .content-value td{
+            border-top: 0px;
+        }
+
+        .box .box-link{
+            display:block;
+            font-size: 0.9em;
+            text-decoration: none;
+        }
+        .low_stock_products thead th{
+            background-color:#28a745;
+            color: white;
+        }
+        table.low_stock_products{
+            width:fit-content;
+            max-width: 100%;
+        }
+        .low_stock_products tbody td{
+            font-size: 0.95em;
         }
 
         /* select2 styles */
@@ -724,10 +791,9 @@
                     else{
                         form.style.display = "block"
                     }
-                    
                 })
                 header.style.display = "flex"
-                main_content.style.marginLeft = "16em";
+                main_content.style.marginLeft = "14em";
             }, 100)
 
         }
