@@ -8,7 +8,7 @@ class RequiredModelForm(forms.ModelForm):
 class ChangePwdForm(forms.Form):
     required_css_class = "required"
     username = forms.CharField(widget=forms.TextInput())
-    password = forms.CharField(widget=forms.PasswordInput())
+    new_password = forms.CharField(widget=forms.PasswordInput())
 
 class CategoryForm(RequiredModelForm):
     class Meta:

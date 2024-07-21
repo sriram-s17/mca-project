@@ -24,9 +24,12 @@ class LoginView(View):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            if user.groups.filter(name="owner").exists():
+                return redirect('home_page')
+            else:
+                return redirect('add_sale')
         else:
             return redirect('/user/login?login=failed')
-        return redirect('home_page')
 
 class LogoutView(View):
     def get(self, request):

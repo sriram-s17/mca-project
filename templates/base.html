@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Page Icon and title -->
-    <link rel="icon" type="image/jpg" href="/assets/images/icon.jpg">
+    <link rel="icon" type="image/png" href="/assets/images/screwdriver-wrench-solid.png">
     <title>{% block title %}{% endblock %}</title>
     
     <!-- Jquery -->
@@ -202,6 +202,11 @@
                 text-align: center;
             }
         }
+        @media (max-width: 500px) {
+            .container{
+                padding: 12px;
+            }
+        }
 
         /* Home page box styles */
         .box-container{
@@ -212,7 +217,7 @@
         }
         .box{
             border-collapse: collapse;
-            width: 9.5em;
+            width: 10em;
             margin: 0px;
         }
         .box p{
