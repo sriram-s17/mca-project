@@ -32,7 +32,7 @@
         <h2>Login</h2>
         <form action="" method="POST">
             {% if error %}
-            <p class="error">{{error}}</p>
+                <p class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{error}}</p>
             {% endif %}
             {% csrf_token %}
             <div>

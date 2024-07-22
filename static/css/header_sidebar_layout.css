@@ -13,7 +13,7 @@ body {
     align-items: baseline;
     position: fixed;
     width: 100%;
-    z-index: 2000;
+    z-index: 2;
     transition: all 0.5s;
 }
 
@@ -33,7 +33,7 @@ body {
 }
 
 /* below content styles */
-.below-content{
+.header-below{
     display: flex;
 }
 
@@ -49,10 +49,11 @@ body {
     display: flex;
     padding-top:3.5em;
     flex-direction: column;
-    z-index: 1000;
+    z-index: 1;
     overflow-y: scroll;
     transition: all 0.5s;
     font-size: 0.95em;
+    box-sizing: border-box;
 }
 
 .sidebar.hide{
@@ -133,7 +134,7 @@ body {
     background: #aaa;
 }
 
-.below-content .content{
+.header-below .content{
     padding-top:4em;
 }
 
