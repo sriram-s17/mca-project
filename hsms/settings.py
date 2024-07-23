@@ -88,6 +88,10 @@ WSGI_APPLICATION = 'hsms.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'hsms_db.sqlite3',
+    },
+    'mysql':{
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'hsms',
         'USER': 'root',
