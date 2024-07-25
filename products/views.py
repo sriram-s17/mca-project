@@ -6,6 +6,7 @@ from json import dumps
 from django.forms import inlineformset_factory, modelformset_factory
 from user.views import GroupRequiredMixin
 import pprint
+from django.db import connection
 # Create your views here.
 
 #products views
@@ -13,6 +14,9 @@ class ViewProducts(GroupRequiredMixin, View):
     groups_required = ['Owner', 'Salesman']
     def get(self, request):
         products = Product.objects.all()
+        # After executing a query
+        # print(products.db)
+        # print(connection.alias)
         context = {
             "products":get_product_details(products)
         }
