@@ -9,7 +9,7 @@ from user.views import GroupRequiredMixin
 
 class ViewWarehouses(GroupRequiredMixin, View):
     # groups_required = [group[0] for group in Group.objects.all().values_list("name")]
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         context = {
             'warehouses': Warehouse.objects.all()
@@ -17,7 +17,7 @@ class ViewWarehouses(GroupRequiredMixin, View):
         return render(request, 'warehouses.html', context)
 
 class AddWarehouse(GroupRequiredMixin, View):
-    groups_required = ['owner']
+    groups_required = ['Owner']
     def get(self, request):
         return render(request, 'add_warehouse.html', { 'warehouse_form':WarehouseForm })
     
@@ -31,7 +31,7 @@ class AddWarehouse(GroupRequiredMixin, View):
         return render(request, 'add_warehouse.html', context)
 
 class EditWarehouse(GroupRequiredMixin, View):
-    groups_required = ['owner']
+    groups_required = ['Owner']
     def get(self, request, id):
         warehouse_obj = Warehouse.objects.get(warehouse_id=id)
         context = {
@@ -50,7 +50,7 @@ class EditWarehouse(GroupRequiredMixin, View):
             return render(request, 'edit_warehouse.html', context)
 
 class DeleteWarehouse(GroupRequiredMixin, View):
-    groups_required = ['owner']
+    groups_required = ['Owner']
     def get(request,id):
         warehouse_obj = Warehouse.objects.get(warehouse_id=id)
         warehouse_obj.delete()

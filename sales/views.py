@@ -31,7 +31,7 @@ def get_sale_detail(sale, get_payments=True, get_items=True):
 
 # Create your views here.
 class ViewSales(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         sales = SaleHeaderDetail.objects.all()
         sales_list = []
@@ -45,7 +45,7 @@ class ViewSales(GroupRequiredMixin, View):
         return render(request, 'sales.html', context)
 
 class ViewSale(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         sale = SaleHeaderDetail.objects.filter(sale_id = id).first()
         if sale:
@@ -63,7 +63,7 @@ def get_stock_detail_with_price():
     return stocked_product_price_refs
 
 class AddSale(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         context = {
             'sale_header_form': SaleHeaderForm,
@@ -113,7 +113,7 @@ class AddSale(GroupRequiredMixin, View):
         return redirect("view_sale", new_sale.sale_id)
 
 class RecordPayment(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         sale = SaleHeaderDetail.objects.filter(sale_id=id).first()
         if sale:

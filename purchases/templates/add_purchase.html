@@ -5,9 +5,9 @@
 {% load user_custom_tags %}
 
 {% block menubar %}
-    {% if request.user|has_group:"owner" %}
+    {% if request.user|has_group:"Owner" %}
         {% include 'owner_menu.html' %}
-    {% elif request.user|has_group:"salesman" %}
+    {% elif request.user|has_group:"Salesman" %}
         {% include 'salesman_menu.html' %}
     {% endif %}
 {% endblock %}

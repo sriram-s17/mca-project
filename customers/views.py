@@ -5,7 +5,7 @@ from user.views import GroupRequiredMixin
 
 # Create your views here.
 class ViewCustomers(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         context = {
             'customers':Customer.objects.all()
@@ -13,7 +13,7 @@ class ViewCustomers(GroupRequiredMixin, View):
         return render(request, 'customers.html', context)
 
 class AddCustomer(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         return render(request, 'add_customer.html', {'customer_form':CustomerForm})
 
@@ -30,7 +30,7 @@ class AddCustomer(GroupRequiredMixin, View):
         return render(request, 'add_customer.html', context)
 
 class EditCustomer(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         customer_obj = Customer.objects.get(customer_id=id)
         context = {
@@ -49,7 +49,7 @@ class EditCustomer(GroupRequiredMixin, View):
             return render(request, 'edit_customer.html', context)
 
 class DeleteCustomer(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(request, id):
         customer_obj = Customer.objects.get(customer_id = id)
         customer_obj.delete()

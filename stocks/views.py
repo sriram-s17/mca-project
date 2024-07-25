@@ -9,7 +9,7 @@ from user.views import GroupRequiredMixin
 
 # Create your views here.
 class ViewStocks(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         stock_details = StockDetail.objects.order_by("product_with_price_ref", "warehouse_ref")
         stock_details_dict = {}

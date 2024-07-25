@@ -24,7 +24,7 @@ class LoginView(View):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            if user.groups.filter(name="owner").exists():
+            if user.groups.filter(name="Owner").exists():
                 return redirect('home_page')
             else:
                 return redirect('add_sale')
@@ -40,13 +40,14 @@ def no_permission_page(request):
     return render(request, "no_permission.html")
 
 class GroupRequiredMixin(AccessMixin):
-    groups_required = ['owner']
+    groups_required = ['Owner']
     
     def dispatch(self, request, *args, **kwargs):
         user = request.user
         if not user.is_authenticated:
             return redirect('login_page')
         if not any([user.groups.filter(name=group).exists() for group in self.groups_required]):
+            print(user.groups)
             return self.handle_no_permission()
         return super().dispatch(request,*args, **kwargs)
     

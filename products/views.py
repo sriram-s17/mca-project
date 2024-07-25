@@ -10,7 +10,7 @@ import pprint
 
 #products views
 class ViewProducts(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         products = Product.objects.all()
         context = {
@@ -73,7 +73,7 @@ def get_product_details(products):
 #     return variant
 
 class ViewProduct(GroupRequiredMixin, View):
-    groups_required = ['owner', 'salesman']
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         product = Product.objects.get(product_id=id)
         product_dict = {"product_id":product.product_id, "product_name": product.product_name,
