@@ -87,11 +87,12 @@ WSGI_APPLICATION = 'hsms.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
+    'default': {},
     'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'hsms_db.sqlite3',
     },
-    'default':{
+    'mysql':{
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'hsms',
         'USER': 'root',
@@ -101,6 +102,7 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['database.db_routers.DbRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
