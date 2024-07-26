@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Hardware Shop Management System - Home Page{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Home Page</h2>
+    <div>
+        <div class="box-container">
+            <!-- <table class="box last_month_sales">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            <p class="title-heading">Last Month Sale</p>
+                            <p class="title-value">{last_month_sales.period}}</p>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="content-heading">
+                        <td>Sold Amount</td>
+                        <td>Profit</td>
+                    </tr>
+                    <tr class="content-value">
+                        <td>&#8377; {last_month_sales.total_sold_amount}}</td>
+                        <td>&#8377; {last_month_sales.total_profit_amount}}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="2"><a class="box-link" href="/sales/report/monthlywise?month_year={last_month_sales.month_year}}">View full report</a></td></tr>
+                </tfoot>
+            </table> -->
+            <table class="box total_products">
+                <thead>
+                    <tr><th><p class="single-title-heading">Total Products</p></th></tr>
+                </thead>
+                <tbody>
+                    <tr class="single-content-value"><td>{{total_products}}</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><td><a class="box-link" href="/products/">View Products</a></td></tr>
+                </tfoot>
+            </table>
+            <table class="box total_suppliers">
+                <thead>
+                    <tr><th><p class="single-title-heading">Total Suppliers</p></th></tr>
+                </thead>
+                <tbody>
+                    <tr class="single-content-value"><td>{{total_suppliers}}</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><td><a class="box-link" href="/suppliers/">View Suppliers</a></td></tr>
+                </tfoot>
+            </table>
+            <table class="box total_customers">
+                <thead>
+                    <tr><th><p class="single-title-heading">Total Customers</p></th></tr>
+                </thead>
+                <tbody>
+                    <tr class="single-content-value"><td>{{total_customers}}</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><td><a class="box-link" href="/customers/">View Customers</a></td></tr>
+                </tfoot>
+            </table>
+            <table class="box last_month_sales">
+                <thead>
+                    <tr><th>
+                        <p class="title-heading">Last Month Sales</p>
+                        <p class="title-value">{{last_month_sales.period}}</p>
+                    </th></tr>
+                </thead>
+                <tbody>
+                    <tr class="single-content-value"><td>{{last_month_sales.total_sales}}</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr><td><a class="box-link" href="/sales/report/monthlywise?month_year={{last_month_sales.month_year}}">View full report</a></td></tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="low_stock_products_section">
+            <h3>Low Stock Products</h3>
+            <table class="low_stock_products">
+                <thead>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Low Stock Threshold</th>
+                </thead>
+                <tbody>
+                    {% for product, stock_detail in low_stock_products.items %}
+                    <tr>
+                        <td>{{product}}</td>
+                        <td>{{stock_detail.quantity}}</td>
+                        <td>{{stock_detail.low_stock_threshold}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+
+{% endblock %}

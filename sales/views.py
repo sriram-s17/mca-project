@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.views import View
 from database.forms import *
 from json import dumps
+from user.views import GroupRequiredMixin
+
 
 def get_sale_detail(sale, get_payments=True, get_items=True):
     context = {
@@ -28,7 +30,8 @@ def get_sale_detail(sale, get_payments=True, get_items=True):
     return context
 
 # Create your views here.
-class ViewSales(View):
+class ViewSales(GroupRequiredMixin, View):
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         sales = SaleHeaderDetail.objects.all()
         sales_list = []
@@ -41,7 +44,8 @@ class ViewSales(View):
 
         return render(request, 'sales.html', context)
 
-class ViewSale(View):
+class ViewSale(GroupRequiredMixin, View):
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         sale = SaleHeaderDetail.objects.filter(sale_id = id).first()
         if sale:
@@ -58,7 +62,8 @@ def get_stock_detail_with_price():
         stocked_product_price_refs.append({stock.product_with_price_ref_id:float(stock.product_with_price_ref.selling_price)})
     return stocked_product_price_refs
 
-class AddSale(View):
+class AddSale(GroupRequiredMixin, View):
+    groups_required = ['Owner', 'Salesman']
     def get(self, request):
         context = {
             'sale_header_form': SaleHeaderForm,
@@ -107,7 +112,8 @@ class AddSale(View):
                     
         return redirect("view_sale", new_sale.sale_id)
 
-class AddPayment(View):
+class RecordPayment(GroupRequiredMixin, View):
+    groups_required = ['Owner', 'Salesman']
     def get(self, request, id):
         sale = SaleHeaderDetail.objects.filter(sale_id=id).first()
         if sale:
@@ -115,7 +121,7 @@ class AddPayment(View):
         else:
             return redirect('view_sales')
 
-        return render(request, "add_sale_payment.html", context)
+        return render(request, "record_sale_payment.html", context)
     
     def post(self, request, id):
         paid_amount = float(request.POST["paid_amount"])

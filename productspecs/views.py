@@ -1,17 +1,18 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from database.forms import *
+from user.views import GroupRequiredMixin
 
 # Create your views here.
 #categories views
-class ViewCategories(View):
+class ViewCategories(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'categories':Category.objects.all()
         }
         return render(request, 'categories.html', context)
 
-class AddCategory(View):
+class AddCategory(GroupRequiredMixin, View):
     def get(self, request):
         return render(request, 'add_category.html', {'category_form': CategoryForm})
     
@@ -19,9 +20,9 @@ class AddCategory(View):
         category_form_data = CategoryForm(request.POST)
         if category_form_data.is_valid():
             category_form_data.save()
-        return render(request, 'add_category.html', {'category_form': CategoryForm, "message": "category added!"})
+        return render(request, 'add_category.html', {'category_form': CategoryForm, "message": "Category added!"})
 
-class EditCategory(View):
+class EditCategory(GroupRequiredMixin, View):
     def get(self, request, id):
         category_obj = Category.objects.get(category_id = id)
         context = {
@@ -36,7 +37,7 @@ class EditCategory(View):
             category_form_data.save()
             return redirect("view_categories")
 
-class DeleteCategory(View):
+class DeleteCategory(GroupRequiredMixin, View):
     def get(self, request, id):
         category_obj = Category.objects.get(category_id = id)
         category_obj.delete()
@@ -44,14 +45,14 @@ class DeleteCategory(View):
 
 
 #brands views
-class ViewBrands(View):
+class ViewBrands(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'brands':Brand.objects.all()
         }
         return render(request, 'brands.html', context)
 
-class AddBrand(View):
+class AddBrand(GroupRequiredMixin, View):
     def get(self, request):
         return render(request, 'add_brand.html', {'brand_form': BrandForm})
     
@@ -59,9 +60,9 @@ class AddBrand(View):
         brand_form_data = BrandForm(request.POST)
         if brand_form_data.is_valid():
             brand_form_data.save()
-        return render(request, 'add_brand.html', {'brand_form': BrandForm, "message":"new brand added!"})
+        return render(request, 'add_brand.html', {'brand_form': BrandForm, "message":"New Brand added!"})
 
-class EditBrand(View):
+class EditBrand(GroupRequiredMixin, View):
     def get(self, request, id):
         brand_obj = Brand.objects.get(brand_id = id)
         context = {
@@ -77,7 +78,7 @@ class EditBrand(View):
             return redirect("view_brands")
     
 
-class DeleteBrand(View):
+class DeleteBrand(GroupRequiredMixin, View):
     def get(self, request, id):
         brand_obj = Brand.objects.get(brand_id = id)
         brand_obj.delete()
@@ -85,14 +86,14 @@ class DeleteBrand(View):
 
 
 #attributes views
-class ViewAttributes(View):
+class ViewAttributes(GroupRequiredMixin, View):
     def get(self, request):
         context = {
             'attributes':Attribute.objects.all()
         }
         return render(request, 'attributes.html', context)
 
-class AddAttribute(View):
+class AddAttribute(GroupRequiredMixin, View):
     def get(self, request):
         return render(request, 'add_attribute.html', {'attribute_form': AttributeForm})
     
@@ -100,9 +101,9 @@ class AddAttribute(View):
         attribute_form_data = AttributeForm(request.POST)
         if attribute_form_data.is_valid():
             attribute_form_data.save()
-        return render(request, 'add_attribute.html', {'attribute_form': AttributeForm, "message": "attribute added!"})
+        return render(request, 'add_attribute.html', {'attribute_form': AttributeForm, "message": "Attribute added!"})
 
-class EditAttribute(View):
+class EditAttribute(GroupRequiredMixin, View):
     def get(self, request, id):
         attribute_obj = Attribute.objects.get(attribute_id = id)
         context = {
@@ -117,7 +118,7 @@ class EditAttribute(View):
             attribute_form_data.save()
             return redirect("view_attributes")
     
-class DeleteAttribute(View):
+class DeleteAttribute(GroupRequiredMixin, View):
     def get(self, request, id):
         selected_attribute_object = Attribute.objects.get(attribute_id = id)
         selected_attribute_object.delete()

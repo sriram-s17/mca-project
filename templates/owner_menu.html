@@ -1,0 +1,52 @@
+<aside class="sidebar shown">
+    <nav>
+        <ul class="nav-list">
+            <li><a href="/"><i class="fa-solid fa-house"></i>Home</a></li>
+            <li class="dropdown">
+                <a href="#"><i class="fa-solid fa-tags"></i>Manage Products <i class="fa-solid fa-angle-right right"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="/products/add/"><i class="fa-solid fa-plus"></i>Add Product</a></li>
+                    <li><a href="/products/"><i class="fa-solid fa-boxes-stacked"></i>View Products</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#"><i class="fa-solid fa-cubes"></i>Inventory <i class="fa-solid fa-angle-right right"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="/stocks/"><i class="fa-solid fa-clipboard-list"></i>View Stocks</a></li>
+                    <li><a href="/stocks/edit/"><i class="fa-solid fa-box-open"></i>Edit Stock</a></li>
+                    <li><a href="/stocks/transfer/"><i class="fa-solid fa-people-carry-box"></i>Transfer Stock</a></li>
+                    <li><a href="/warehouses/add/"><i class="fa-solid fa-plus"></i>Add Warehouse</a></li>
+                    <li><a href="/warehouses/"><i class="fa-solid fa-warehouse"></i>View Warehouses</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#"><i class="fa-solid fa-bag-shopping"></i>Purchases <i class="fa-solid fa-angle-right right"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="/purchases/add/"><i class="fa-solid fa-plus"></i>Add Purchases</a></li>
+                    <li><a href="/purchases/"><i class="fa-solid fa-clipboard-list"></i>View Purchases</a></li>
+                    <li><a href="/suppliers/add/"><i class="fa-solid fa-user-plus"></i>Add Suppliers</a></li>
+                    <li><a href="/suppliers/"><i class="fa-solid fa-users"></i>View Suppliers</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#"><i class="fa-solid fa-cart-shopping"></i>Sales <i class="fa-solid fa-angle-right right"></i></a>
+                <ul class="dropdown-content">
+                    <li><a href="/sales/add/"><i class="fa-solid fa-plus"></i>Add Sales</a></li>
+                    <li><a href="/sales/"><i class="fa-solid fa-clipboard-list"></i>View Sales</a></li>
+                    <li><a href="/customers/add/"><i class="fa-solid fa-user-plus"></i>Add Customers</a></li>
+                    <li><a href="/customers/"><i class="fa-solid fa-people-group"></i>View Customers</a></li>
+                </ul>
+            </li>
+            <li><a href="/sales/report/monthlywise/"><i class="fa-solid fa-chart-simple"></i>Sales Report</a></li>
+            <li class="dropdown user">
+                <a href="#"><i class="fa-solid fa-user"></i>User <i class="fa-solid fa-angle-right right"></i></a>
+                <ul class="dropdown-content">
+                    {% for user in users %}
+                        <li><a href="/user/change_password?username={{user}}"><i class="fa-solid fa-unlock-keyhole"></i>Change {{user}} Password</a></li>
+                    {% endfor %}
+                    <li><a href="/user/logout/"><i class="fa-solid fa-right-from-bracket"></i>logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</aside>

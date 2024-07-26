@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name='home.html')),
+    path('', include('home.urls')),
     path('products/', include('productspecs.urls')),
     path('products/', include('products.urls')),
     path('suppliers/', include('suppliers.urls')),
@@ -33,5 +33,6 @@ urlpatterns = [
     path('purchases/', include('purchases.urls')),
     path('sales/', include('sales.urls')),
     path('stocks/', include('stocks.urls')),
-    path('sales/report/', include('salesreport.urls'))
+    path('sales/report/', include('salesreport.urls')),
+    path('user/', include('user.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

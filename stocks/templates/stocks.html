@@ -2,53 +2,65 @@
 {% load custom_tags %}
 {% block title %}Stocks{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h2>Stocks</h2>
-<a href="/stocks/edit/"><button>Add Stock for products</button></a>
-<table class="table">
-    <thead>
-        <tr>
-            <th rowspan="2">S.No.</th>
-            <th rowspan="2">Product</th>
-            <th rowspan="2">Status</th>
-            <th colspan="{{warehouses|length}}">Warehouses and Quantities</th>
-            <th rowspan="2">Edit</th>
-            <th rowspan="2">Transfer stock</th>
-        </tr>
-        <tr>
-            {% for warehouse in warehouses %}
-            <th>{{warehouse.warehouse_name}}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for product, stock_detail in product_stocks.items %}
+<div class="container">
+    <h2>Stocks</h2>
+    <a href="/stocks/edit/"><button class="btn btn-edit-stock"><i class="fa-solid fa-pen-to-square"></i>Edit Stock</button></a>
+    <table class="table">
+        <thead>
             <tr>
-                <td rowspan="{{stock_detail|length}}">{{forloop.counter}}</td>
-                <td rowspan="{{stock_detail|length}}">{{product}}</td>
-                {% for status, stocks in stock_detail.items %}
-                    {% if not forloop.first %}
-                        <tr>
-                    {% endif %}
-                        <td>{{status}}</td>
-                        {% for warehouse in warehouses %}
-                            {% with stock=stocks|getstock:warehouse.warehouse_id %}
-                                {% if stock %}
-                                    <td>{{stock.quantity}}</td>
-                                {% else %}
-                                    <td>-</td>
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                    {% if not forloop.first %}
-                        </tr>
-                    {% else %}
-                            <td rowspan="{{stock_detail|length}}"><a href="/stocks/edit?ppid={{product.product_price_id}}"><button>Edit Stock</button></a></td>
-                            <td rowspan="{{stock_detail|length}}"><a href="/stocks/transfer?ppid={{product.product_price_id}}"><button>Transfer Stock</button></a></td>
-                        </tr>
-                    {% endif %}
+                <th rowspan="2">S.No.</th>
+                <th rowspan="2" style="width: 25em;">Product</th>
+                <th rowspan="2">Status</th>
+                <th colspan="{{warehouses|length}}">Warehouses and Quantities</th>
+                <th rowspan="2">Edit Stock</th>
+                <th rowspan="2">Transfer stock</th>
+            </tr>
+            <tr>
+                {% for warehouse in warehouses %}
+                <th>{{warehouse.warehouse_name}}</th>
                 {% endfor %}
-        {% endfor %}
-    </tbody>
-</table>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product, stock_detail in product_stocks.items %}
+                <tr>
+                    <td rowspan="{{stock_detail|length}}">{{forloop.counter}}</td>
+                    <td rowspan="{{stock_detail|length}}">{{product}}</td>
+                    {% for status, stocks in stock_detail.items %}
+                        {% if not forloop.first %}
+                            <tr>
+                        {% endif %}
+                            <td>{{status}}</td>
+                            {% for warehouse in warehouses %}
+                                {% with stock=stocks|getstock:warehouse.warehouse_id %}
+                                    {% if stock %}
+                                        <td>{{stock.quantity}}</td>
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        {% if not forloop.first %}
+                            </tr>
+                        {% else %}
+                                <td rowspan="{{stock_detail|length}}"><a href="/stocks/edit?ppid={{product.product_price_id}}"><button class="btn btn-edit-stock m-0 float-n"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                                <td rowspan="{{stock_detail|length}}"><a href="/stocks/transfer?ppid={{product.product_price_id}}"><button class="btn btn-transfer-stock"><i class="fa-solid fa-truck-ramp-box m-0"></i></i></button></a></td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

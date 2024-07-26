@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Purchase Payment{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/purchases/"><button><i class="fa-solid fa-arrow-left"></i>Back to Purchases</button></a>
+<div class="container">
+    <h2>Record Payment</h2>
+    
+    <h3>Purchase Details:</h3>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th><i class="fa-solid fa-user"></i>Supplier</th>
+                <td>{{purchase_ref.supplier_ref}}</td>
+            </tr>
+            <tr>
+                <th><i class="fa-solid fa-cart-shopping"></i>Purchased Date</th>
+                <td>{{purchase_ref.purchased_date}}</td>
+            </tr>
+            <tr>
+                <th><i class="fa-solid fa-receipt"></i>Bill Amount</th>
+                <td>&#8377; {{purchase_ref.bill_amount}}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="display_amounts">
+        <p class="paid_amount"><strong><i class="fa-solid fa-money-bill-1-wave"></i>Paid Amount: </strong><span>&#8377; {{paid_amount}}</span></p>
+        <p class="balance_amount"><strong><i class="fa-solid fa-hand-holding-dollar"></i>Balance Amount to Pay: </strong><span>&#8377; {{balance_amount}}</span></p>
+    </div>
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="id_paid_amount">Enter the Amount you Paid: </label>
+            {% if balance_amount > 0 %}
+                <input type="number" name="paid_amount" id="id_paid_amount" required max={{balance_amount}} >
+                <button type="submit">Add Paid amount</button>
+            {% else %}
+                <input type="number" name="paid_amount" id="id_paid_amount" required max={{balance_amount}} disabled>
+                <button type="submit" disabled>Add Paid amount</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        paid_amount = document.querySelector("input[name='paid_amount']")
+        paid_amount.focus()
+    }
+</script>
+{% endblock %}

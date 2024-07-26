@@ -2,28 +2,41 @@
 
 {% block title %}Categories{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h1>Brands</h1>
-<a href="/products/"><button>Back to Products</button></a>
-<a href="/products/brands/add/"><button>Add Brands</button></a>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for brand in brands %}
-        <tr>
-            <td>{{brand.brand_id}}</td>
-            <td>{{brand.brand_name}}</td>
-            <td><a href="{% url 'edit_brand' brand.brand_id %}"><button>Edit</button></a></td>
-            <td><a href="{% url 'delete_brand' brand.brand_id %}"><button>delete</button></a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<a href="/products/"><button><i class="fa-solid fa-arrow-left"></i>Back to Products</button></a>
+<div class="container">
+    
+    <h2>Brands</h2>
+    <a href="/products/brands/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Brands</button></a>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for brand in brands %}
+            <tr>
+                <td>{{brand.brand_id}}</td>
+                <td>{{brand.brand_name}}</td>
+                <td><a href="{% url 'edit_brand' brand.brand_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                <td><a href="{% url 'delete_brand' brand.brand_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can m-0"></i></button></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

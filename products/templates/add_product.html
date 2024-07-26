@@ -2,37 +2,132 @@
 
 {% block title %}Add Products{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h1>Add Products</h1>
-<a href="/products/"><button>Back to Products</button></a>
+<a href="/products/"><button><i class="fa-solid fa-arrow-left"></i>Back to Products</button></a>
+<div class="container">
+    <h2>Add Product</h2>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- product form -->
+        {% for field in product_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+                
+                {{ field }}
+            </div>
+        {% endfor %}
+        <div id="productdetail">
+            <!-- product detail form -->
+            {% for field in detail_form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    
+                    {% if field.field.widget.input_type != 'file' %}
+                        {{ field }}
+                    {% else %}
+                        <div class="image-upload-container">
+                            {{ field }}
+                            <img id="image-preview" src="" alt="Image Preview" style="display:none;">
+                            <p style="margin:20px; font-size: 12px;">Click or Drop here to Upload image</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
 
-{% if message %}
-<p class="success-message">{{message}}</p>
-{% endif %}
+            <!-- selling price form -->
+            {% for field in selling_price_form%}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="attributes_div" style="display: none;">
+    
+            <button type="button" class="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
 
-<form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{product_form}}
-    <div id="productdetail">
-        {{detail_form}}
-        {{selling_price_form}}
-    </div>
-    <div id="attributes_div" style="display: none;">
+        </div>
+        <button id="add_button" type="submit">Add Product</button>
+    </form>
+</div>
+{% endblock %}
 
-        <button type="button" id="add_attribute_btn">Add Attribute</button>
-    </div>
-    <button id="add_button" type="submit">Add Product</button>
-</form>
+{% block script %}
 <script>
+    $('select').select2({
+        width: "100%"
+    })
+    window.onload = ()=>{
+        product_name = document.querySelector("input[name='product_name']")
+        product_name.focus()
+    }
+
     const productdetailform = document.querySelector("#productdetail")
     const add_button = document.querySelector("#add_button")
     const has_variants_input = document.querySelector("#id_has_variants")
     
     //initial requirements for adding attributes
     const attributes_div = document.querySelector("#attributes_div")
-    const add_attribute_btn = document.querySelector("#add_attribute_btn")
-    let attribute_select = `{{attribute_form}}
-            <button type="button" onclick="remove_attribute(this)">Remove</button>`
+    const add_attribute_btn = document.querySelector(".add_attribute_btn")
+    
+    // attribute form
+    let attribute_select = `
+    {% for field in attribute_form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+        </div>
+    {% endfor %}
+    <button type="button" onclick="remove_attribute(this)"><i class="fa-solid fa-xmark m-0"></i></button>`
 
     //check the product has variant or not , then display respective content
     has_variants_input.addEventListener('change', ()=>{

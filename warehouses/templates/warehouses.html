@@ -1,31 +1,45 @@
 {% extends 'base.html' %}
 
 {% block title %}Warehouses{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
-    <h1>Warehouses</h1>
-    <a href="/warehouses/add/"><button>Add Warehouse</button></a>
+<div class="container">
+    <h2>Warehouses</h2>
+    <a href="/warehouses/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Warehouse</button></a>
     <table class="table">
         <thead>
             <tr>
-                <th>id</th>
+                <th>S.No.</th>
                 <th>Name</th>
                 <th>Location</th>
                 <th>Incharge Name</th>
-                <th>edit</th>
-                <th>delete</th>
+                <th>Edit</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
             {% for warehouse in warehouses %}
             <tr>
-                <td>{{warehouse.warehouse_id}}</td>
+                <td>{{forloop.counter}}</td>
                 <td>{{warehouse.warehouse_name}}</td>
                 <td>{{warehouse.location}}</td>
                 <td>{{warehouse.incharge_person}}</td>
-                <td><a href="{% url 'edit_warehouse' warehouse.warehouse_id %}"><button>edit</button></a></td>
-                <td><a href="{% url 'delete_warehouse' warehouse.warehouse_id %}"><button>delete</button></a></td>
+                <td><a href="{% url 'edit_warehouse' warehouse.warehouse_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                <td><a href="{% url 'delete_warehouse' warehouse.warehouse_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can m-0"></i></button></a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 {% endblock %}

@@ -2,17 +2,54 @@
 
 {% block title %}Add Categories{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h1>Add Category</h1>
-<a href="/products/categories/"><button>Back to Categories</button></a>
+<a href="/products/categories/"><button><i class="fa-solid fa-arrow-left"></i>Back to Categories</button></a>
+<div class="container">
+    <h2>Add Category</h2>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+        
+        {% for field in category_form %}    
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
 
-{% if message %}
-<p class="success-message">{{message}}</p>
-{% endif %}
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+            </div>
+        {% endfor %}
 
-<form action="" method="POST">
-    {% csrf_token %}
-    {{category_form}}
-    <button type="submit">Add</button>
-</form>
+        <button type="submit">Add Category</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        category_name = document.querySelector("input[name='category_name']")
+        category_name.focus()
+    }
+</script>
 {% endblock %}

@@ -5,6 +5,11 @@ from .models import *
 class RequiredModelForm(forms.ModelForm):
     required_css_class = 'required'
 
+class ChangePwdForm(forms.Form):
+    required_css_class = "required"
+    username = forms.CharField(widget=forms.TextInput())
+    new_password = forms.CharField(widget=forms.PasswordInput())
+
 class CategoryForm(RequiredModelForm):
     class Meta:
         model = Category
@@ -100,11 +105,6 @@ class VarAttrValueForm(RequiredModelForm):
         if self.instance and self.instance.pk:
             self.fields['value'].label = f"value of {self.instance.product_attr_ref.attribute_ref}"
 
-# class VarAttrValueForm2(forms.Form):
-#     required_css_class = "required"
-#     product_attr_ref = forms.IntegerField(widget = forms.HiddenInput(attrs={"name":"product_attr_ref"}))
-#     value_of = forms.CharField(label="value of", widget=forms.TextInput(attrs={"name":"value"}))
-
 class SupplierForm(RequiredModelForm):
     class Meta:
         model = Supplier
@@ -195,6 +195,15 @@ class TransferStockForm(RequiredModelForm):
         labels = {
             'warehouse_ref': "To warehouse",
         }
+        help_texts = {
+            "warehouse_ref": "Source and Destination should not be same"
+        }
         widgets = {
             "quantity": forms.NumberInput(attrs={"min":"0"})
         }
+
+class ProductDetailSelectForm(forms.Form):
+    product_detail_ref = forms.ModelChoiceField(queryset=ProductDetail.objects.all(), label="Choose Product")
+
+class CustomerSelectForm(forms.Form):
+    customer_ref = forms.ModelChoiceField(queryset=Customer.objects.all(), label="Select Customer")

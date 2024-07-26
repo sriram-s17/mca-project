@@ -2,35 +2,47 @@
 
 {% block title %}Sales{% endblock %}
 
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-<h2>Sales</h2>
-<a href="/sales/add/"><button>Add Sales</button></a>
-<table class="table">
-    <thead>
-        <th>id</th>
-        <th>Sold Date</th>
-        <th>Supplier</th>
-        <th>Total amount</th>
-        <th>Paid Amount</th>
-        <th>Balance</th>
-        <th>View</th>
-        <th>Add paid amount</th>
-    </thead>
-    {% for sale in sales %}
-    <tr>
-        <td>{{sale.sale_ref.sale_id}}</td>
-        <td>{{sale.sale_ref.sold_date}}</td>
-        <td>{{sale.sale_ref.customer_ref}}</td>
-        <td>{{sale.total_amount}}</td>
-        <td>{{sale.paid_amount}}</td>
-        <td>{{sale.balance_amount}}</td>
-        <td><a href="{% url 'view_sale' sale.sale_ref.sale_id %}"><button>View</button></a></td>
-        {% if sale.balance_amount > 0 %}
-        <td><a href="{% url 'add_sale_payment' sale.sale_ref.sale_id %}"><button>Add Payment</button></a></td>
-        {% else %}
-        <td></td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-</table>
+<div class="container">
+    <h2>Sales</h2>
+    <a href="/sales/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Sales</button></a>
+    <table>
+        <thead>
+            <th>Id</th>
+            <th>Sold Date</th>
+            <th>Supplier</th>
+            <th>Total amount</th>
+            <th>Paid Amount</th>
+            <th>Balance</th>
+            <th>View</th>
+            <th>Add paid amount</th>
+        </thead>
+        {% for sale in sales %}
+        <tr>
+            <td>{{sale.sale_ref.sale_id}}</td>
+            <td>{{sale.sale_ref.sold_date}}</td>
+            <td>{{sale.sale_ref.customer_ref}}</td>
+            <td>{{sale.total_amount}}</td>
+            <td>{{sale.paid_amount}}</td>
+            <td>{{sale.balance_amount}}</td>
+            <td><a href="{% url 'view_sale' sale.sale_ref.sale_id %}"><button class="btn btn-view"><i class="fa-regular fa-eye m-0"></i></button></a></td>
+            {% if sale.balance_amount > 0 %}
+            <td><a href="{% url 'add_sale_payment' sale.sale_ref.sale_id %}"><button class="btn btn-payment"><i class="fa-solid fa-indian-rupee-sign"></i>Record payment</button></a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 {% endblock %}

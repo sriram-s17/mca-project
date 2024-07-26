@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-7=!+t_k_f!i7%&^e&1w-1s=*+-kd*j_v@_9#ts*!gr*(k6h2n)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.57.89','127.0.0.1', "localhost"]
 
 
 # Application definition
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'sales',
     'stocks',
     'salesreport',
+    'user',
+    'home'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +70,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'user.context_processors.get_users',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -84,7 +87,12 @@ WSGI_APPLICATION = 'hsms.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default': {},
+    'sqlite3': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'hsms_db.sqlite3',
+    },
+    'mysql':{
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'hsms',
         'USER': 'root',
@@ -94,6 +102,7 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['database.db_routers.DbRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
