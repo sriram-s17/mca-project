@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-7=!+t_k_f!i7%&^e&1w-1s=*+-kd*j_v@_9#ts*!gr*(k6h2n)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['192.168.57.89','127.0.0.1', "localhost"]
 
 
 # Application definition
@@ -139,17 +139,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'assets/'
-# STATICFILES_DIRS = [BASE_DIR / 'static/']
+STATICFILES_DIRS = [BASE_DIR / 'static/']
 
-# MEDIA_URL =  'uploads/'
-# MEDIA_ROOT = BASE_DIR / 'static/uploads/'
+MEDIA_URL =  'uploads/'
+MEDIA_ROOT = BASE_DIR / 'static/uploads/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# added for configuration in vercel hosting
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_URLS = '/uploads/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'uploads')
