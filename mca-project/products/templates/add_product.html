@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Products{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/products/"><button><i class="fa-solid fa-arrow-left"></i>Back to Products</button></a>
+<div class="container">
+    <h2>Add Product</h2>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- product form -->
+        {% for field in product_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+                
+                {% for error in field.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+                
+                {{ field }}
+            </div>
+        {% endfor %}
+        <div id="productdetail">
+            <!-- product detail form -->
+            {% for field in detail_form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    
+                    {% if field.field.widget.input_type != 'file' %}
+                        {{ field }}
+                    {% else %}
+                        <div class="image-upload-container">
+                            {{ field }}
+                            <img id="image-preview" src="" alt="Image Preview" style="display:none;">
+                            <p style="margin:20px; font-size: 12px;">Click or Drop here to Upload image</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <!-- selling price form -->
+            {% for field in selling_price_form%}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="attributes_div" style="display: none;">
+    
+            <button type="button" class="add_attribute_btn"><i class="fa-solid fa-plus"></i>Add Attribute</button>
+
+        </div>
+        <button id="add_button" type="submit">Add Product</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $('select').select2({
+        width: "100%"
+    })
+    window.onload = ()=>{
+        product_name = document.querySelector("input[name='product_name']")
+        product_name.focus()
+    }
+
+    const productdetailform = document.querySelector("#productdetail")
+    const add_button = document.querySelector("#add_button")
+    const has_variants_input = document.querySelector("#id_has_variants")
+    
+    //initial requirements for adding attributes
+    const attributes_div = document.querySelector("#attributes_div")
+    const add_attribute_btn = document.querySelector(".add_attribute_btn")
+    
+    // attribute form
+    let attribute_select = `
+    {% for field in attribute_form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+        </div>
+    {% endfor %}
+    <button type="button" onclick="remove_attribute(this)"><i class="fa-solid fa-xmark m-0"></i></button>`
+
+    //check the product has variant or not , then display respective content
+    has_variants_input.addEventListener('change', ()=>{
+        if(has_variants_input.checked){
+            productdetailform.style.display="none";
+            attributes_div.style.display = "block";
+            document.querySelector("[name='selling_price']").disabled = true
+            add_button.textContent = "Save and Continue add variant";
+        }
+        else{
+            productdetailform.style.display="block"
+            attributes_div.style.display = "none";
+            document.querySelector("[name='selling_price']").disabled = false
+            attributes_div.querySelectorAll(".attribute_form").forEach((element)=>{
+                element.remove()
+            })
+            add_button.textContent = "Add Product"
+        }
+    });
+
+    //add attribute if user click the button
+    add_attribute_btn.addEventListener("click", ()=>{
+        let attribute_form = document.createElement("div")
+        attribute_form.classList.add("attribute_form")
+        attribute_form.innerHTML = attribute_select
+        // let attrnum = attributes_div.children.length 
+        // attribute_form.innerHTML = attribute_select.replace(RegExp(`Attribute`, "g"), `Attribute ${attrnum}`)
+        // attribute_form.innerHTML = attribute_form.innerHTML.replace(RegExp(`id_attribute_ref`, "g"), `id_attribute_ref_${attrnum}`)
+        attributes_div.insertBefore(attribute_form, add_attribute_btn)
+
+        order_id_n_label_of_attrs()
+    })
+
+    //removes the attribute
+    function remove_attribute(btn){
+        btn.parentElement.remove()
+        order_id_n_label_of_attrs()
+    }
+
+    //regulate id and label of attribute_forms
+    function order_id_n_label_of_attrs(){
+        attrnum = 0
+        attributes_div.querySelectorAll(".attribute_form").forEach(attribute_form=>{
+            attrnum += 1
+            label = attribute_form.querySelector("label")
+            label.textContent =  `Attribute ${attrnum}`
+            label.setAttribute("for",  `id_attribute_ref_${attrnum}`)
+            attribute_form.querySelector("select").setAttribute("id", `id_attribute_ref_${attrnum}`)
+        })
+    }
+</script>
+{% endblock %}

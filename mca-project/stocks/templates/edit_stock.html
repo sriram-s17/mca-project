@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Stocks{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/stocks/"><button><i class="fa-solid fa-arrow-left"></i>Back to Stocks</button></a>
+
+<div class="container">
+    <h2>Edit Stocks</h2>
+    <form action="" method="POST">
+        {% csrf_token %}
+        {% for field in stock_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+    
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+    
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+    
+            {{ field }}
+            </div>
+        {% endfor %}
+        <button type="submit">Save</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    let warehouse = document.querySelector("#id_warehouse_ref")
+    let product = document.querySelector("#id_product_with_price_ref")
+    let quantity = document.querySelector("[name='quantity']")
+    let status = document.querySelector("[name='status']")
+    let form = document.querySelector("form")
+    let quantityvalue
+
+    let missed_form = document.createElement("div")
+    missed_form.setAttribute("id", "missed_form")
+    missed_form.innerHTML = `<label for='id_missed_stock'>Enter How Many missed stocks</label>
+        <input type='number' name='quantity2' min='0' id='id_missed_stock'>`
+
+    let damaged_form = document.createElement("div")
+    damaged_form.setAttribute("id", "damaged_form")
+    damaged_form.innerHTML = `<label for='id_damaged_stock'>Enter How Many Damaged stocks</label>
+        <input type='number' name='quantity2' min='0' id='id_damaged_stock'>`
+
+    let quantity_form = document.createElement("div")
+    quantity_form.setAttribute("id", "quantity_form")
+    quantity_form.innerHTML = `<label for='id_change_quantity'>Add or Minus stocks</label>
+        <input type='number' name='quantity2' id='id_change_quantity'>`
+    
+    let quantity_form_input = quantity_form.querySelector("input")
+    quantity_form_input.addEventListener("change", ()=>{
+        quantity.value = quantityvalue + parseInt(quantity_form_input.value)
+    })
+
+    $('[name="product_with_price_ref"]').select2()
+    
+
+    warehouse.addEventListener("change", ()=>{
+        fetch_quantity()
+    })
+    $(product).on('select2:select', function (e) {
+        let select2data = e.params.data;
+        let ppid = select2data.id;
+        product.value = ppid;
+        fetch_quantity();
+    })
+
+    function fetch_quantity(){
+        console.log("fetch function called")
+        fetch(`/stocks/products/quantity?ppid=${product.value}&wid=${warehouse.value}`)
+        .then(response=>{
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            return response.json()
+        })
+        .then(data=>{
+            quantity.value = data
+            quantityvalue = data
+            status_action()
+        })
+        .catch(error=>{
+            console.log(error)
+        })
+    }
+    
+    status.addEventListener("change", ()=>{
+        status_action()
+    })
+    function status_action(){
+        d_form = form.querySelector('#damaged_form')
+        m_form = form.querySelector('#missed_form')
+        q_form = form.querySelector('#quantity_form')
+        forms = [d_form, m_form, q_form]
+        forms.forEach((form)=>{
+            if (form){
+                form.remove()
+            }
+        })
+        quantity.value = quantityvalue
+        if(status.value=="missed"){
+            extra_form_action(missed_form)
+        }
+        else if(status.value=="damaged"){
+            extra_form_action(damaged_form)
+        } else{
+            quantity_form_action()
+        }
+    }
+    function extra_form_action(extra_form){
+        extra_form_input = extra_form.querySelector('input')
+        extra_form.querySelector("input").setAttribute("max",quantityvalue)
+        form.insertBefore(extra_form, status.parentElement)
+        
+        extra_form_input.value = 0
+        extra_form_input.addEventListener("change", ()=>{
+            quantity.value = quantityvalue - extra_form_input.value
+        })
+    }
+
+    function quantity_form_action(){
+        quantity_form_input.value = 0
+        quantity_form_input.setAttribute("min", -(quantityvalue))
+        form.insertBefore(quantity_form, status.parentElement)
+    }
+
+    if (quantity.value !=""){
+        quantityvalue = parseInt(quantity.value)
+        quantity_form_action()
+    }
+</script>
+{% endblock %}

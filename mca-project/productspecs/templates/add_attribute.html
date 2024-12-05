@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Attributes{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<a href="/products/attributes/"><button><i class="fa-solid fa-arrow-left"></i>Back to Attributes</button></a>
+
+<div class="container">
+    <h2>Add Attribute</h2>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+    
+        {% for field in attribute_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+
+            {{ field }}
+            </div>
+        {% endfor %}
+    
+        <button type="submit">Add Attribute</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        attribute_name = document.querySelector("input[name='attribute_name']")
+        attribute_name.focus()
+    }
+</script>
+{% endblock %}

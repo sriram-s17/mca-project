@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Suppliers{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Suppliers</h2>
+    <a href="/suppliers/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Suppliers</button></a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Shop Name</th>
+                <th>Owner Name</th>
+                <th>Address</th>
+                <th>Phone no</th>
+                <th>Date Added</th>
+                <th>edit</th>
+                <th>delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{supplier.supplier_id}}</td>
+                <td>{{supplier.shop_name}}</td>
+                <td>{{supplier.owner_name}}</td>
+                <td>{{supplier.address}}</td>
+                <td>{{supplier.phoneno}}</td>
+                <td>{{supplier.date_added}}</td>
+                <td><a href="{% url 'edit_supplier' supplier.supplier_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                <td><a href="{% url 'delete_supplier' supplier.supplier_id %}"><button class="btn btn-delete"><i class="fa-regular fa-trash-can m-0"></i></button></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

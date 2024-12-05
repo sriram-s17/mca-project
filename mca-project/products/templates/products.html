@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/products/categories/"><button class="product_spec_btn"><i class="fa-solid fa-table-list"></i>Manage Categories</button></a>
+<a href="/products/brands/"><button class="product_spec_btn"><i class="fa-solid fa-industry"></i>Manage Brands</button></a>
+<a href="/products/attributes/"><button class="product_spec_btn"><i class="fa-solid fa-gears"></i>Manage Attributes</button></a>
+<div class="container">
+    <h2>Products</h2>
+    <a href="/products/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Product</button></a><br>
+    <table>
+        <thead>
+            <tr>
+                <th>S.No.</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Brand</th>
+                <th>Product Code</th>
+                <th>Is Active</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                {% if not product.product_ref.has_variants %}
+                <tr class="normal_product">
+                    <td class="product_count"></td>
+                    <td>
+                        <div class="product_name_cell">
+                            {% if product.product_detail_ref.product_image %}
+                            <img src="{{product.product_detail_ref.product_image.url}}" class="product_img" alt="{{product.product_detail_ref.product_image}}">
+                            {% endif %}
+                            {{product.product_ref.product_name}}
+                        </div>
+                    </td>
+                    <td>{{product.product_ref.category_ref}}</td>
+                    <td>{{product.product_ref.brand_ref}}</td>
+                    <td>{{product.product_detail_ref.product_code}}</td>
+                    <td>
+                        {% if product.product_detail_ref.is_active %}
+                        Active
+                        {% else %}
+                        Inactive
+                        {% endif %}
+                    </td>
+                    {% if request.user|has_group:"Owner" %}
+                    <td><a href="{% url 'edit_product' product.product_ref.product_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr class="variant_product">
+                    <td></td>
+                    <td>{{product.product_ref.product_name}}</td>
+                    <td>{{product.product_ref.category_ref}}</td>
+                    <td>{{product.product_ref.brand_ref}}</td>
+                    <td colspan="2"></td>
+                    {% if request.user|has_group:"Owner" %}
+                    <td><a href="{% url 'edit_product' product.product_ref.product_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                    {% endif %}
+                </tr>
+                    {% for variant in product.variants %}
+                    <tr class="variant">
+                        <td class="product_count"></td>
+                        <td colspan="3" >
+                            <div class="product_name_cell">
+                                {% if variant.product_detail_ref.product_image %}
+                                <img src="{{variant.product_detail_ref.product_image.url}}" class="product_img" alt="{{product.product_detail_ref.product_image}}" width="35px" height="35px">
+                                {% endif %}
+                                <div style="display:flex; flex-direction: column;">
+                                    <span>{{variant.variant_ref.variant_name}}</span>
+                                    <small class="total_attr_value">
+                                        {% for attribute, value in variant.attributes.items %}
+                                        <div class="attr_value"><strong>{{attribute}}</strong> : {{value}}</div>
+                                        {% endfor %}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{variant.product_detail_ref.product_code}}</td>
+                        <td>
+                            {% if variant.product_detail_ref.is_active %}
+                            Active
+                            {% else %}
+                            Inactive
+                            {% endif %}
+                        </td>
+                        {% if request.user|has_group:"Owner" %}
+                        <td><a href="{% url 'edit_variant' variant.variant_ref.variant_id %}"><button class="btn btn-edit"><i class="fa-solid fa-pen-to-square m-0"></i></button></a></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                        {% if request.user|has_group:"Owner" %}
+                    <tr class="prod_var_inside">
+                        <td></td>
+                        <td style="text-align: left;" colspan="8"><a href="{% url 'add_variant' product.product_ref.product_id %}"><button class="add_variant_btn"><i class="fa-regular fa-square-plus"></i>Add Variant</button></a></td>
+                    </tr>
+                        {% endif %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    let product_counts = document.querySelectorAll(".product_count")
+    count = 1;
+    product_counts.forEach(product_count=>{
+        product_count.textContent += count
+        count++
+    })
+</script>
+{% endblock %}

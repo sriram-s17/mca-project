@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Categories{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/products/categories/"><button><i class="fa-solid fa-arrow-left"></i>Back to categories</button></a>
+<div class="container">
+    <h2>Edit Category</h2>
+    <form action="" method="POST">
+        {% csrf_token %}
+        
+        {% for field in category_form %}    
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+            </div>
+        {% endfor %}
+        
+        <button type="submit">Save</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    window.onload = ()=>{
+        category_name = document.querySelector("input[name='category_name']")
+        focus_inputfield(category_name)
+    }
+</script>
+{% endblock %}

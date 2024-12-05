@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Variant{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<a href="/products/"><button><i class="fa-solid fa-arrow-left"></i>Back to Products</button></a>
+<div class="container">
+    <h2>Edit Variant Detail</h2>
+    
+    <p>Edit variant detail of the product <strong>'{{variant.product_ref}}'</strong></p>
+    
+    {% if message %}
+        <p class="alert alert-success"><i class="fa-solid fa-circle-check"></i>{{message}}</p>
+    {% endif %}
+    
+    {% if error %}
+        <p class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{error}}</p>
+    {% endif %}
+    
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in variant_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+            
+        </div>
+        {% endfor %}
+        {% for field in detail_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {% if field.field.widget.input_type != 'file' %}
+                {{ field }}
+            {% else %}
+                {% if field.value %}
+                    <div class="image-clear-container">
+                        <input type="checkbox" name="{{field.name}}-clear" id="{{field.name}}-clear_id">
+                        <button class="remove clear_checkbox_button" type="button"><i class="fa-regular fa-circle-xmark"></i>Remove Old Image</button>
+                    </div>
+                {% endif %}
+                <div class="image-upload-container">
+                    {% if field.value %}
+                        <img id="image-preview" src="{{field.value.url}}" alt="Image Preview">
+                    {% else %}
+                        <img id="image-preview" src="" alt="Image Preview">
+                    {% endif %}
+                    <input type="file" name="{{ field.name}}" id="{{field.auto_id}}">
+                    <p style="margin:20px; font-size: 12px;">Click or Drop here to Upload image</p>
+                </div>
+            {% endif %}
+            </div>
+        {% endfor %}
+        {{attr_value_formset.management_form}}
+        {% for form in attr_value_formset%}
+            {% for field in form %}
+                
+                {% if field.field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                    {{ field.label_tag }}
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                    {{ field }}
+                    </div>
+                {% else %}
+                    {{field}}
+                {% endif %}
+
+            {% endfor %}
+        {% endfor %}
+        
+        {% for field in no_value_attr_value_forms %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+
+            </div>
+        {% endfor %}
+
+        {% for field in selling_price_form %}
+            <div class="form-group">
+            {{ field.label_tag }}
+            
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% for error in field.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+            
+            {{ field }}
+
+            </div>
+        {% endfor %}
+        
+        {% if price_formset %}
+            {{price_formset.management_form}}
+            <h3>Price Variants</h3>
+            <span>only the price variants with stock quantity greater than zero are shown</span>
+                
+                {% for form in price_formset %}    
+                    <div class="price_set">
+                    {% for field in form %}
+                        {% if field.field.widget.input_type != 'hidden' %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            
+                            {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <div class="field-error">{{ error }}</div>
+                            {% endfor %}
+                            
+                            {{ field }}
+                        
+                        </div>
+                        {% else %}
+                            {{field}}
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+
+        {% elif selling_price_form is None %}
+            <h3>Price Variants</h3>
+            <p>There is no stocks in this product, so its price variants are not shown</p>
+        {% endif %}
+        
+        <button type="submit">Save</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,4 +1,5 @@
-venv/
+mca-project/venv/
 notes.txt
-test.html
-test.css
+mca-project/test.html
+mca-project/test.css
+mca-project/.vscode/

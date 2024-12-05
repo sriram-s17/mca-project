@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchases{% endblock %}
+
+{% load user_custom_tags %}
+
+{% block menubar %}
+    {% if request.user|has_group:"Owner" %}
+        {% include 'owner_menu.html' %}
+    {% elif request.user|has_group:"Salesman" %}
+        {% include 'salesman_menu.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Purchases</h2>
+    <a href="/purchases/add/"><button class="btn btn-add"><i class="fa-solid fa-plus"></i>Add Purchase</button></a>
+    <table class="table">
+        <thead>
+            <th>id</th>
+            <th>Purchase Date</th>
+            <th>Supplier</th>
+            <th>Total amount</th>
+            <th>Paid Amount</th>
+            <th>Balance</th>
+            <th>View</th>
+            <th>Add paid amount</th>
+        </thead>
+        {% for purchase in purchases %}
+        <tr>
+            <td>{{purchase.purchase_ref.purchase_id}}</td>
+            <td>{{purchase.purchase_ref.purchased_date}}</td>
+            <td>{{purchase.purchase_ref.supplier_ref}}</td>
+            <td>{{purchase.purchase_ref.bill_amount}}</td>
+            <td>{{purchase.paid_amount}}</td>
+            <td>{{purchase.balance_amount}}</td>
+            <td><a href="{% url 'view_purchase' purchase.purchase_ref.purchase_id %}"><button class="btn btn-view"><i class="fa-regular fa-eye m-0"></i></button></a></td>
+            {% if purchase.balance_amount > 0 %}
+            <td><a href="{% url 'add_payment' purchase.purchase_ref.purchase_id %}"><button class="btn btn-payment"><i class="fa-solid fa-indian-rupee-sign"></i>Record payment</button></a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

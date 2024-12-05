@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page Icon and title -->
+    <link rel="icon" type="image/png" href="/assets/images/screwdriver-wrench-solid.png">
+    <title>{% block title %}{% endblock %}</title>
+    
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    
+    <!-- datatables library -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    
+    <!-- Fontawesome icon -->
+    <link rel="stylesheet" href="/assets/lib/fontawesome/css/all.min.css">
+
+    <!-- select2 jquery plugin -->
+     <link rel="stylesheet" href="/assets/lib/select2/css/select2.min.css">
+    <script src="/assets/lib/select2/js/select2.min.js"></script>
+
+    <!-- custom css -->
+    <link rel="stylesheet" href="/assets/css/header_sidebar_layout.css">
+    <link rel="stylesheet" href="/assets/css/select2_custom_styles.css">
+    <style>
+        .m-0{
+            margin: 0px !important;
+        }
+        .float-n{
+            float:none !important;
+        }
+        .float-r{
+            float:right !important;
+        }
+
+        h1, h2{
+            color: #333;
+        }
+        
+
+        /* font awesome icons styles */
+        i {
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+        
+        .alert i{
+            font-size: 1em;
+        }
+        
+
+        /* container styling */
+        .container {
+            background: #fff;
+            padding: 10px 20px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .container .btn {
+            display: inline-block;
+            padding: 8px 13px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        .container .btn-edit {
+            background-color: #ff9900;
+        }
+
+        .container .btn-delete {
+            background-color: #f44336;
+        }
+
+        .container .btn-add, .container .btn-edit-stock {
+            background-color: #28a745;
+            float: right;
+            padding:8px 12px;
+            margin-bottom: 20px;
+        }
+        .container .btn-view{
+            background-color:#008CBA;
+        }
+
+        .container .btn-payment, .container .btn-transfer-stock{
+            background-color: salmon;
+        }
+
+        .print-button{
+            float: right;
+            background-color: #ccc;
+            color: #333;
+        }
+
+        button.product_spec_btn, button.other_report_btn{
+            padding: 11px 20px;
+            border-radius: 20px;
+            margin: 5px 5px 0 5px;
+        }
+
+        .add_attribute_btn, .add_item_button, .add_variant_btn{
+            color: #333;
+            background-color: white;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding:7px 15px;
+            margin: 0px;
+        }
+        .add_attribute_btn{
+            margin-bottom: 20px;
+        }
+        .add_attribute_btn:hover, .add_item_button:hover, .add_variant_btn:hover{
+            background-color:#555;
+            color: white;
+            box-shadow: 0 2px 8px #ccc;
+        }
+
+        .attribute_form button, .purchase_item button, .sale_item button{
+            padding: 5px 10px;
+            color: black;
+            background-color: #ccc;
+        }
+        .purchase_item button, .sale_item button {
+            padding: 10px;
+        }
+        .report_group .report_btn{
+            height: 40px;
+            width: 100%;
+        }
+        .customer_group a button{
+            width: 100%;
+            height: 40px;
+            background-color:#28a745;
+            color: white;
+        }
+
+        
+        /* General table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            box-shadow: 0px 0px 14px #aaa;
+            overflow-x: auto;
+        }
+
+        th, td {
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #d1d1d1;
+            padding: 10px 12px;
+            color: #333;
+            border-bottom: 1px solid #aaa;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 5px 11px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #e4e4e4;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        .product_name_cell{
+            display:flex;
+            align-items: center;
+        }
+
+        .product_img{
+            width: 2em;
+            margin-right: 8px;
+        }
+
+        .variant_product td{
+            background-color: rgb(156, 207, 255) !important;
+            padding: 2px 11px !important;
+            font-size: 0.9em !important;
+        }
+
+
+        /* attributes styles in view products page */
+        .total_attr_value{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+        .attr_value{
+            display: inline-block;
+            padding: 2px 6px;
+            background-color:#c2d9ff;
+            border-radius: 5px;
+        }
+
+        /* Home page box table styles */
+        .box-container{
+            display:flex;
+            align-items: stretch;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .box{
+            border-collapse: collapse;
+            width: 10em;
+            margin: 0px;
+        }
+
+        .box p{
+            margin: 0px;
+        }
+        .box tbody td, .box thead th, .box tfoot td{
+            border: 1px solid rgb(253, 205, 115);
+            text-align: center;
+        }
+
+        .box .title-heading, .box .single-title-heading{
+            font-size: 1.1em;
+        }
+
+        .box .single-title-heading{
+            padding: 10px 5px;
+        }
+
+        .box thead th{
+            padding: 3px 5px;
+            background-color: rgb(253, 205, 115);
+        }
+
+        .box tbody td{
+            padding: 3px 5px;
+            font-size: 0.9em;
+            width:50%;
+            box-sizing: border-box;
+            background-color: white !important;
+        }
+
+        .box .content-heading td{
+            border-bottom: 0px;
+            font-weight: bold;
+        }
+
+        .box .single-content-value td{
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .box .content-value td{
+            border-top: 0px;
+        }
+
+        .box .box-link{
+            display:block;
+            font-size: 0.9em;
+            text-decoration: none;
+        }
+
+        .low_stock_products thead th{
+            background-color:#28a745;
+            color: white;
+        }
+
+        table.low_stock_products{
+            width:fit-content;
+            max-width: 100%;
+        }
+
+        .low_stock_products tbody td{
+            font-size: 0.95em;
+        }
+
+        .purchase_table tfoot td, .sale_table tfoot td{
+            padding: 10px;
+        }
+
+
+        /* Form Styles */
+        form input[type="text"],
+        form input[type="password"],
+        form input[type="number"],
+        form input[type="email"],
+        form textarea,
+        form select,
+        form input[type="file"],
+        form input[type="month"]{
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 16px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[readonly]{
+          border: 1px solid #999;
+          background-color: #ddd;
+        }
+
+        form input[type="checkbox"] {
+            position: relative;
+            top: 2px;
+            margin: 8px 0 16px 0
+        }
+
+        form input[type="month"]{
+            width: 10em;
+        }
+
+        form button[type="submit"] {
+            background-color: #008CBA;
+            color: white;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        form button[type="submit"]:hover {
+            box-shadow: 2px 2px 10px #008CBA ;
+        }
+        form button[type="submit"]:disabled{
+            background-color: #eee;
+            color: #aaa;
+            border: 1px solid #aaa;
+        }
+        form button[type="submit"]:disabled:hover{
+            box-shadow: none;
+            cursor:auto;
+        }
+
+        .attribute_form{
+            border: 1px solid #ccc;
+            margin: 10px 0px;
+            padding:10px;
+            display:flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+        }
+        .attribute_form label, .attribute_form select {
+            display: inline;
+            width: initial;
+            margin: 0px;
+        }
+        .image-upload-container {
+            position: relative;
+            width: 180px; /* Adjust width as needed */
+            height: 180px; /* Adjust height as needed */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            background-color: #f8f8f8;
+            margin: 10px 0 20px 0;
+            padding: 10px;
+        }
+
+        .image-upload-container input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .image-upload-container img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            border-radius: 4px;
+        }
+        
+        .image-clear-container{
+            margin-top: 8px;
+        }
+        .image-clear-container button{
+            background-color: white;
+            width: 180px;
+            padding: 6px 10px;
+        }
+        .image-clear-container button.remove{
+            border: 1px solid rgb(252, 72, 72);
+            color:rgb(252, 72, 72)
+        }
+        .image-clear-container button.keep{
+            border: 1px solid rgb(0, 110, 255);
+            color:rgb(0, 110, 255);
+        }
+        input[name*="-clear"]{  /* for image */
+            display:none;
+        }
+
+        .price_set{
+            border: 2px solid #ccc;
+            margin: 15px 0px;
+            padding:10px;
+            display:flex;
+            flex-wrap: wrap;
+            justify-content:space-between;
+        }
+
+        .alert{
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.6rem;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .purchase_item .select2-container, .sale_item .select2-container{
+            width: 20vw !important;
+        }   
+        .purchase_item input, .purchase_item .select2-container, .sale_item input{
+            margin-bottom: 10px !important;
+        }
+        .sale_item .select2-container {
+            margin-bottom: 5px !important;
+        }
+        .sale_item .help-text{
+            display: inline-block;
+            padding:0px 5px;
+            width: 20vw;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px 10px;
+            }
+
+            .container .btn {
+                padding: 6px 8px;
+            }
+
+            .container .btn-add {
+                float: none;
+                width: 100%;
+                text-align: center;
+            }
+        }
+        @media (max-width: 500px) {
+            .container{
+                padding: 12px;
+            }
+        }
+
+        .display_amounts{
+            text-align: center;
+        }
+        
+        .display_amounts .paid_amount, .display_amounts .bill_amount, .display_amounts .discount_amount{
+            font-size: 18px;
+        }
+        .display_amounts .balance_amount{
+            font-size: 22px;
+        }
+        .display_amounts .total_amount{
+            font-size: 22px;
+        }
+        .full_amount_paid{
+            color: green;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 0 10px#89ffa3;
+        }
+
+        .overall_amount_profit{
+            font-size: 1.1em;
+        }
+        .overall_amount_profit span{
+            font-weight: bold;
+        }
+
+        .customer_group, .report_group{
+            display:flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+        .customer_group .form-group, .report_group .form-group{
+            flex: 2;
+        }
+        .customer_group .select2-container, .report_group .select2-container{
+            width: 100% !important;
+        }
+        .customer_group a, .report_group .report_btn{
+            margin:0px 10px 20px 14px;
+            flex: 1;
+        }
+        
+        @media (max-width:860px){
+            .customer_group, .report_group{
+                flex-direction: column;
+                align-items:stretch;
+                justify-content:stretch;
+            }
+            .customer_group .form-group, .report_group .form-group{
+                flex:1;
+            }
+            .customer_group a, .report_group .report_btn{
+                flex: 1;
+                margin: 0px 0px 16px;
+            }
+        }
+
+        .field-error {
+            margin-top: 0.3rem;
+            color: red;
+        }
+        .help-text{
+            color:green
+        }
+        @media (max-width:900px) {
+            .help-text{
+                display:block
+            }
+        }
+
+        .login_div{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%
+        }
+        label.required::after {
+            content: ' *';
+            color: red;
+        }
+        
+        .login_div{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 70vh;
+            
+        }
+        .login_div div{
+            margin: 10px 10px;
+        }
+        .login_div form{
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            flex-wrap: wrap;
+            background-color: white;
+            padding: 40px 20px;
+
+        }
+
+        .login_div label{
+            align-self: flex-start;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .login_div button{
+            margin: 10px 10px 20px;
+            padding: 8px 20px;
+            width: 300px;
+            background-color:orange;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            border: 0px;
+        }
+    </style>
+    {% block custom_head_tag %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <i class="fa-solid fa-bars menu_icon"></i>
+        <h1>Hardware Shop Management System</h1>
+    </header>
+
+    <div class="header-below">
+        {% block menubar %}{% endblock %}
+        <main class="content">
+          {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <script src="/assets/js/header_sidebar_layout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var dropdowns = document.querySelectorAll('.dropdown > a');
+
+            dropdowns.forEach(function (dropdown) {
+                dropdown.addEventListener('click', function (event) {
+                    let i = dropdown.querySelector(".right")
+                    i.classList.toggle("fa-angle-down")
+                    i.classList.toggle("fa-angle-right")
+                    event.preventDefault();
+                    var parent = this.parentElement;
+                    parent.classList.toggle('active');
+                });
+            });
+            
+        });
+        function focus_inputfield(inputfield){
+            inputfield.focus()
+            let value = inputfield.value
+            inputfield.value=""
+            inputfield.value = value
+        }
+        let product_image_input = document.querySelector('[name="product_image"]')
+        const preview = document.querySelector('#image-preview');
+        const image_para = document.querySelector(".image-upload-container p")
+        const clear_checkbox = document.querySelector(".image-clear-container input[type='checkbox']")
+        const clear_checkbox_button= document.querySelector(".clear_checkbox_button")
+        const keep_button_innerhtml = "<i class='fa-solid fa-arrow-rotate-left'></i>Keep Old Image"
+        const remove_button_innerhtml = `<i class="fa-regular fa-circle-xmark"></i>Remove Old Image`
+        let current_image_src;
+        if(product_image_input){
+            if(clear_checkbox){
+                preview.style.display = 'block';
+                image_para.style.display = 'none';
+                current_image_src = preview.src
+                clear_checkbox_button.addEventListener('click', ()=>{
+                    if (clear_checkbox_button.classList.contains("remove")){
+                        clear_checkbox.checked = true
+                        // product_image_input.value = ""
+                        hide_preview()
+                        clear_checkbox_button.classList.add('keep')
+                        clear_checkbox_button.classList.remove('remove')
+                        clear_checkbox_button.innerHTML = keep_button_innerhtml
+                    }
+                    else if (clear_checkbox_button.classList.contains("keep")){
+                        clear_checkbox.checked = false
+                        product_image_input.value = ""
+                        show_preview(current_image_src)
+                        clear_checkbox_button.classList.add('remove')
+                        clear_checkbox_button.classList.remove('keep')
+                        clear_checkbox_button.innerHTML = remove_button_innerhtml
+                    }
+                })
+            }
+            product_image_input.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onloadend = function() {
+                    if(clear_checkbox){
+                        //if remove button is clicked already so checkbox is checked, so we uncheck 
+                        clear_checkbox.checked = false
+
+                        //if old image changed
+                        if (!clear_checkbox_button.classList.contains('keep')){
+                            clear_checkbox_button.classList.add('keep')
+                            clear_checkbox_button.classList.remove('remove')
+                            clear_checkbox_button.innerHTML = keep_button_innerhtml
+                        }
+                    }
+                    show_preview(reader.result)
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                } else {
+                    if(clear_checkbox){
+                        clear_checkbox.checked = true
+                    }
+                    hide_preview()
+                }
+            });
+        }
+        function show_preview(img_src){
+            preview.src = img_src;
+            preview.style.display = 'block';
+            image_para.style.display = 'none';     
+        }
+        function hide_preview(){
+            preview.src = ""
+            preview.style.display = "none"
+            image_para.style.display = "block";
+        }
+        function generate_pdf(){
+            let sidebar = document.querySelector(".sidebar")
+            let other_report_btns = document.querySelectorAll(".other_report_btn")
+            let forms = document.querySelectorAll("form")
+            let header = document.querySelector("header")
+            sidebar.style.display = "none"
+            other_report_btns.forEach(btn=>{
+                btn.style.display = "none"
+            })
+            forms.forEach(form=>{
+                form.style.display = "none"
+            })
+            header.style.display = "none"
+            main_content.style.margin = "0px";
+            
+            setTimeout(()=>
+            {
+                window.print()
+                sidebar.style.display = "flex"
+                other_report_btns.forEach(btn=>{
+                    btn.style.display = "inline-block"
+                })
+                forms.forEach(form=>{
+                    if(forms.length > 1){
+                        form.style.display = "inline"
+                    }
+                    else{
+                        form.style.display = "block"
+                    }
+                })
+                header.style.display = "flex"
+                main_content.style.marginLeft = "14em";
+            }, 100)
+
+        }
+    </script>
+    {% block script %} {% endblock %}
+</body>
+</html>
