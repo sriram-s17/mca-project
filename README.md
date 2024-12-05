@@ -1,7 +1,11 @@
 <h1>Hardware Shop Management System</h1>
 <p>This project is a web-based inventory management and point-of-sale system with reporting features, designed for a hardware shop but adaptable for any type of store. The system allows users to add product details and variants, manage supplier and customer information, and record purchase and sales transactions along with payments. Additionally, it provides monthly profit reports, product reports, and customer reports based on sales data.</p>
 <h2>Demo Video</h2>
-[![sriram-mca-project-demo-video](https://www.github.com/sriram-s17/mca-project/blob/main/others/demo%20video%20thumbnail.png)](https://www.github.com/sriram-s17/mca-project/blob/main/others/demo%20video.mp4)
+
+
+https://github.com/user-attachments/assets/a47790c3-0322-4642-9ca4-e26aa04bfbf6
+
+
 <h2>Database Design of this project</h2>
 <img src="others/database data/hsms_db_eer_diagram.png" alt="hsms database eer diagram">
 
